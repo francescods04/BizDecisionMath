@@ -15,7 +15,7 @@ Install directly from GitHub:
 install.packages("devtools")
 
 # Install BizDecisionMath from GitHub
-devtools::install_github("YOUR_USERNAME/BizDecisionMath")
+devtools::install_github("francescods04/BizDecisionMath")
 ```
 
 Or load locally for development:
