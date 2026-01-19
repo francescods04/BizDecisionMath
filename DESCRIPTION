@@ -1,0 +1,12 @@
+Package: BizDecisionMath
+Title: Financial Formulas for Business Decision Analysis
+Version: 0.1.0
+Authors@R: person("Francesco", "Delsesto", email = "user@example.com", role = c("aut", "cre"))
+Description: A collection of financial formulas for business decision analysis, covering annuities, investment analysis, and options pricing. Based on key slide deck materials.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+    httr,
+    jsonlite
+RoxygenNote: 7.3.3
