@@ -54,6 +54,353 @@ Simple regression (p=1): Y = beta_0 + beta_1*x + epsilon
    (No perfect linear relationship among x_j's)
 ",
 
+    # ========== STATISTICAL THEORY (NEW) ==========
+    hypothesis_testing = "
+**WHAT IS A HYPOTHESIS TEST?**
+
+**Definition:**
+A statistical procedure to decide between two competing claims
+about a population parameter based on sample data.
+
+**Structure:**
+- **H_0 (Null Hypothesis)**: The 'default' claim (e.g., no effect, beta = 0)
+- **H_1 (Alternative Hypothesis)**: What we want to show (e.g., beta != 0)
+
+**Procedure:**
+1. State H_0 and H_1
+2. Choose significance level alpha (typically 0.01, 0.05, or 0.10)
+3. Compute test statistic from sample data
+4. Compare to critical value OR compute p-value
+5. Make decision: Reject H_0 or Fail to reject H_0
+
+**Key Principle:**
+We assume H_0 is true and ask: 'How likely is our observed data?'
+If very unlikely (p-value < alpha), we reject H_0.
+
+**IMPORTANT:** Failing to reject H_0 does NOT prove H_0 is true!
+",
+
+    type_errors = "
+**TYPE I AND TYPE II ERRORS**
+
+|                    | H_0 True          | H_0 False         |
+|--------------------|-------------------|-------------------|
+| Reject H_0         | TYPE I ERROR (α)  | CORRECT           |
+| Fail to reject H_0 | CORRECT           | TYPE II ERROR (β) |
+
+**Type I Error (False Positive):**
+- Rejecting H_0 when it is actually true
+- Probability = alpha (significance level)
+- Example: Concluding x has effect when it doesn't
+
+**Type II Error (False Negative):**
+- Failing to reject H_0 when it is actually false
+- Probability = beta
+- Example: Missing a real effect
+
+**Power of a Test:**
+**Power = 1 - beta = P(Reject H_0 | H_0 is false)**
+- Probability of correctly detecting a real effect
+- Higher power = better at finding true effects
+- Increased by: larger n, larger effect size, higher alpha
+",
+
+    p_value = "
+**P-VALUE: DEEP UNDERSTANDING**
+
+**Definition:**
+The probability of observing a test statistic as extreme as (or more
+extreme than) the one computed, ASSUMING H_0 is true.
+
+**Formal:**
+**p-value = P(Test Statistic >= observed | H_0 is true)**
+
+**Interpretation:**
+- Small p-value: Data is unlikely under H_0 -> Evidence against H_0
+- Large p-value: Data is plausible under H_0 -> No strong evidence
+
+**Decision Rule:**
+- If p-value < alpha: Reject H_0
+- If p-value >= alpha: Fail to reject H_0
+
+**COMMON MISCONCEPTIONS:**
+- p-value is NOT P(H_0 is true)
+- p-value is NOT the probability of making an error
+- p-value does NOT measure effect size or practical importance
+
+**Typical Thresholds:**
+- p < 0.001: Very strong evidence against H_0 (***)
+- p < 0.01: Strong evidence (**)
+- p < 0.05: Moderate evidence (*)
+- p < 0.10: Weak evidence (.)
+- p >= 0.10: Insufficient evidence
+",
+
+    distributions = "
+**STATISTICAL DISTRIBUTIONS IN REGRESSION**
+
+**1. NORMAL DISTRIBUTION N(mu, sigma^2)**
+- Symmetric, bell-shaped
+- Used for: errors (epsilon), large-sample test statistics
+- Key: Z = (X - mu)/sigma ~ N(0,1)
+
+**2. t-DISTRIBUTION (t_{df})**
+- Similar to normal but heavier tails
+- df = degrees of freedom (more df -> closer to normal)
+- Used for: coefficient tests when sigma unknown
+- In regression: df = n - p - 1
+- As df -> infinity, t -> N(0,1)
+
+**3. F-DISTRIBUTION (F_{df1, df2})**
+- Right-skewed, non-negative
+- Ratio of two chi-squares divided by their df
+- Used for: comparing variances, ANOVA, F-tests
+- df1 = numerator df (restrictions tested)
+- df2 = denominator df (n - p - 1)
+
+**4. CHI-SQUARE DISTRIBUTION (chi^2_{df})**
+- Sum of squared standard normals
+- Right-skewed, non-negative
+- Used for: logit model tests, goodness of fit
+
+**Degrees of Freedom (df):**
+= Sample size - Number of parameters estimated
+= n - p - 1 in regression (p variables + intercept)
+",
+
+    estimator_properties = "
+**PROPERTIES OF ESTIMATORS**
+
+**1. UNBIASEDNESS**
+E[b] = beta (expected value equals true parameter)
+- OLS estimates are unbiased under Assumptions 1-5
+
+**2. CONSISTENCY**
+b -> beta as n -> infinity (converges to true value)
+- Larger samples = more accurate estimates
+
+**3. EFFICIENCY**
+Among unbiased estimators, the one with smallest variance
+- OLS is efficient under homoscedasticity
+
+**4. BLUE (Best Linear Unbiased Estimator)**
+Gauss-Markov Theorem:
+Under Assumptions 1-3 (linearity, homoscedasticity, no autocorrelation):
+**OLS is BLUE** = Best Linear Unbiased Estimator
+
+'Best' means minimum variance among all linear unbiased estimators.
+
+**5. MINIMUM VARIANCE (with normality)**
+Under all 5 assumptions (including normality):
+OLS has minimum variance among ALL unbiased estimators
+(not just linear ones).
+",
+
+    heteroskedasticity = "
+**HETEROSKEDASTICITY**
+
+**Definition:**
+Violation of the constant variance assumption.
+**Var[epsilon_i] != sigma^2** (variance changes across observations)
+
+**Visual Detection:**
+Residual plot shows 'funnel shape' or systematic pattern in spread.
+
+**Consequences:**
+1. OLS estimates still UNBIASED and CONSISTENT
+2. BUT: Standard errors are WRONG (usually underestimated)
+3. t-tests and F-tests become UNRELIABLE
+4. Confidence intervals are INVALID
+
+**Formal Test: BREUSCH-PAGAN TEST**
+- H_0: Homoscedasticity (Var[epsilon] = sigma^2)
+- H_1: Heteroskedasticity (Var[epsilon] depends on x)
+- Test statistic: BP ~ chi^2_{p} under H_0
+- Reject H_0 if p-value < alpha
+
+**R Code:**
+library(lmtest)
+bptest(model)  # Breusch-Pagan test
+
+**Fixes:**
+1. Use ROBUST (heteroskedasticity-consistent) standard errors:
+   coeftest(model, vcov = vcovHC(model, type = 'HC1'))
+2. Transform dependent variable: log(Y)
+3. Weighted Least Squares (WLS)
+",
+
+    autocorrelation = "
+**AUTOCORRELATION (Serial Correlation)**
+
+**Definition:**
+Violation of the independence assumption.
+**Cov[epsilon_i, epsilon_j] != 0** for i != j
+(Errors at different observations are correlated)
+
+**Common in:**
+- Time series data (today's error related to yesterday's)
+- Spatial data (nearby locations have similar errors)
+
+**Consequences:**
+1. OLS estimates still UNBIASED
+2. BUT: Standard errors are WRONG
+3. t-tests and F-tests become UNRELIABLE
+4. Efficiency is lost (OLS no longer BLUE)
+
+**Detection: DURBIN-WATSON TEST**
+- H_0: No first-order autocorrelation (rho = 0)
+- H_1: First-order autocorrelation (rho != 0)
+- Test statistic: DW ~ 2 under H_0
+- DW near 0: Positive autocorrelation
+- DW near 4: Negative autocorrelation
+- DW near 2: No autocorrelation
+
+**R Code:**
+library(lmtest)
+dwtest(model)  # Durbin-Watson test
+
+**Fixes:**
+1. Include lagged variables
+2. Use HAC (Newey-West) standard errors
+3. Use time series models (ARIMA)
+4. First differencing
+",
+
+    normality_test = "
+**NORMALITY OF ERRORS**
+
+**Assumption:**
+epsilon_i ~ N(0, sigma^2)
+Errors are normally distributed.
+
+**Why It Matters:**
+- Required for EXACT validity of t-tests and F-tests
+- Required for valid confidence intervals
+- Less critical with large samples (Central Limit Theorem)
+
+**Visual Detection: Q-Q PLOT**
+- If points lie on diagonal line: Normality OK
+- S-shape: Heavy tails
+- Curved: Skewness
+
+**Formal Test: SHAPIRO-WILK TEST**
+- H_0: Residuals are normally distributed
+- H_1: Residuals are NOT normally distributed
+- Most powerful test for normality
+- Reject H_0 if p-value < alpha
+
+**R Code:**
+shapiro.test(residuals(model))
+
+**Alternative: JARQUE-BERA TEST**
+- Based on skewness and kurtosis
+- H_0: Skewness = 0 and Kurtosis = 3 (normal)
+- JB ~ chi^2_2 under H_0
+
+**Fixes:**
+1. Transform Y: log(Y), sqrt(Y), Box-Cox
+2. Remove outliers
+3. With large n, rely on asymptotic results
+",
+
+    aic_bic = "
+**AIC AND BIC: MODEL SELECTION CRITERIA**
+
+**AIC (Akaike Information Criterion):**
+**AIC = -2*log(L) + 2*k**
+= -2*(log-likelihood) + 2*(number of parameters)
+
+**BIC (Bayesian Information Criterion):**
+**BIC = -2*log(L) + k*log(n)**
+= -2*(log-likelihood) + k*log(sample size)
+
+Where:
+- L = Maximized likelihood of the model
+- k = Number of estimated parameters (p + 1 for intercept)
+- n = Sample size
+
+**Interpretation:**
+- LOWER values = BETTER model
+- Both penalize complexity (more parameters = worse)
+- BIC penalizes complexity MORE heavily than AIC
+- BIC tends to select SIMPLER models
+
+**Usage:**
+- For non-nested models: Compare AIC or BIC directly
+- For nested models: Use partial F-test (better)
+- AIC good for prediction
+- BIC good for finding 'true' model
+
+**R Code:**
+AIC(model1, model2, model3)
+BIC(model1, model2, model3)
+",
+
+    blue = "
+**GAUSS-MARKOV THEOREM & BLUE**
+
+**Theorem Statement:**
+Under Assumptions 1-3:
+1. E[epsilon] = 0 (zero mean errors)
+2. Var[epsilon] = sigma^2 (homoscedasticity)
+3. Cov[epsilon_i, epsilon_j] = 0 (no autocorrelation)
+
+**OLS is BLUE:**
+- **B**est = Minimum variance
+- **L**inear = Linear function of Y
+- **U**nbiased = E[b] = beta
+- **E**stimator
+
+**What This Means:**
+Among ALL estimators that are:
+  (a) Linear in Y
+  (b) Unbiased
+
+OLS has the SMALLEST variance (most precise).
+
+**Implications:**
+- If assumptions hold: OLS is optimal
+- If heteroskedasticity: OLS still unbiased, but NOT best
+- If autocorrelation: OLS still unbiased, but NOT best
+- Violations -> Use robust standard errors or different estimators
+",
+
+    stationarity_tests = "
+**STATIONARITY TESTS**
+
+**Why Test for Stationarity?**
+- ARIMA models require stationary series
+- Non-stationary series have spurious regression risk
+- Forecasting assumes stationarity
+
+**AUGMENTED DICKEY-FULLER (ADF) TEST:**
+- H_0: Series has a UNIT ROOT (non-stationary)
+- H_1: Series is STATIONARY
+- Reject H_0 = Evidence of stationarity
+
+R Code:
+library(tseries)
+adf.test(y)
+
+**LJUNG-BOX TEST:**
+- H_0: All autocorrelations up to lag k = 0
+- H_1: At least one autocorrelation != 0
+- Test statistic: Q ~ chi^2_k under H_0
+- Used for residual diagnostics
+
+R Code:
+Box.test(residuals, lag = k, type = 'Ljung-Box')
+
+**KPSS TEST:**
+- H_0: Series is STATIONARY
+- H_1: Series is NON-STATIONARY
+- Opposite of ADF!
+
+R Code:
+library(tseries)
+kpss.test(y)
+",
+
     ols = "
 **ORDINARY LEAST SQUARES (OLS)**
 
@@ -554,49 +901,93 @@ R^2_adj = 1 - (1 - R^2) * (n-1)/(n-p-1)
 
   if (missing(name)) {
     cat("Please provide the name of the topic. Available topics:\n\n")
-    cat("=== REGRESSION FUNDAMENTALS ===\n")
-    cat("1.  linear model\n")
-    cat("2.  assumptions\n")
-    cat("3.  ols (least squares)\n")
+    cat("=== STATISTICAL FOUNDATIONS (NEW!) ===\n")
+    cat("1.  hypothesis testing (what is a test?)\n")
+    cat("2.  type errors (Type I, Type II, power)\n")
+    cat("3.  p value (interpretation, misconceptions)\n")
+    cat("4.  distributions (t, F, chi-square, normal)\n")
+    cat("5.  estimator properties (bias, consistency, efficiency)\n")
+    cat("6.  blue (Gauss-Markov theorem)\n")
+    cat("\n=== ASSUMPTION VIOLATIONS (NEW!) ===\n")
+    cat("7.  heteroskedasticity (Breusch-Pagan test)\n")
+    cat("8.  autocorrelation (Durbin-Watson test)\n")
+    cat("9.  normality test (Shapiro-Wilk, Q-Q plot)\n")
+    cat("10. stationarity tests (ADF, Ljung-Box, KPSS)\n")
+    cat("11. aic bic (model selection theory)\n")
+    cat("\n=== REGRESSION FUNDAMENTALS ===\n")
+    cat("12. linear model\n")
+    cat("13. assumptions\n")
+    cat("14. ols (least squares)\n")
     cat("\n=== INFERENCE ===\n")
-    cat("4.  confidence interval\n")
-    cat("5.  t test (individual coefficient)\n")
-    cat("6.  f test partial (nested models)\n")
-    cat("7.  f test global (model significance)\n")
+    cat("15. confidence interval\n")
+    cat("16. t test (individual coefficient)\n")
+    cat("17. f test partial (nested models)\n")
+    cat("18. f test global (model significance)\n")
     cat("\n=== DEVIANCE & R-SQUARED ===\n")
-    cat("8.  deviance (decomposition)\n")
-    cat("9.  r squared\n")
+    cat("19. deviance (decomposition)\n")
+    cat("20. r squared\n")
     cat("\n=== CATEGORICAL VARIABLES ===\n")
-    cat("10. dummy variables\n")
+    cat("21. dummy variables\n")
     cat("\n=== TRANSFORMATIONS & INTERACTIONS ===\n")
-    cat("11. transformations (log, polynomial)\n")
-    cat("12. interactions\n")
+    cat("22. transformations (log, polynomial)\n")
+    cat("23. interactions\n")
     cat("\n=== DIAGNOSTICS ===\n")
-    cat("13. multicollinearity (VIF)\n")
-    cat("14. outliers (leverage, influential)\n")
-    cat("15. residual plots\n")
+    cat("24. multicollinearity (VIF)\n")
+    cat("25. outliers (leverage, influential)\n")
+    cat("26. residual plots\n")
     cat("\n=== LOGISTIC REGRESSION ===\n")
-    cat("16. logit model\n")
-    cat("17. odds ratio\n")
-    cat("18. logit tests (z-test, chi-square)\n")
+    cat("27. logit model\n")
+    cat("28. odds ratio\n")
+    cat("29. logit tests (z-test, chi-square)\n")
     cat("\n=== PANEL DATA ===\n")
-    cat("19. panel data (FEM, REM)\n")
-    cat("20. hausman test\n")
+    cat("30. panel data (FEM, REM)\n")
+    cat("31. hausman test\n")
     cat("\n=== TIME SERIES ===\n")
-    cat("21. time series (basics, decomposition)\n")
-    cat("22. acf pacf\n")
-    cat("23. arima\n")
-    cat("24. white noise (random walk)\n")
-    cat("25. forecasting (SES, Holt, Holt-Winters)\n")
-    cat("26. model selection (AIC)\n")
+    cat("32. time series (basics, decomposition)\n")
+    cat("33. acf pacf\n")
+    cat("34. arima\n")
+    cat("35. white noise (random walk)\n")
+    cat("36. forecasting (SES, Holt, Holt-Winters)\n")
+    cat("37. model selection\n")
     return(invisible(NULL))
   }
 
   name_clean <- tolower(trimws(name))
   key <- NULL
 
-  # Matching logic
-  if (grepl("linear", name_clean) && grepl("model", name_clean)) {
+  # Matching logic - NEW THEORY TOPICS FIRST
+  if (grepl("hypothesis", name_clean) && grepl("test", name_clean)) {
+    key <- "hypothesis_testing"
+  } else if (grepl("type", name_clean) && grepl("error", name_clean)) {
+    key <- "type_errors"
+  } else if (grepl("type.?i", name_clean) || grepl("type.?ii", name_clean)) {
+    key <- "type_errors"
+  } else if (grepl("power", name_clean) && grepl("test", name_clean)) {
+    key <- "type_errors"
+  } else if (grepl("p.?value", name_clean) || grepl("pvalue", name_clean)) {
+    key <- "p_value"
+  } else if (grepl("distribution", name_clean)) {
+    key <- "distributions"
+  } else if (grepl("estimator", name_clean) || grepl("unbias", name_clean) || grepl("consisten", name_clean) || grepl("efficien", name_clean)) {
+    key <- "estimator_properties"
+  } else if (grepl("\\bblue\\b", name_clean) || grepl("gauss.?markov", name_clean)) {
+    key <- "blue"
+  } else if (grepl("heterosked", name_clean) || grepl("heteroscedas", name_clean) || grepl("breusch", name_clean)) {
+    key <- "heteroskedasticity"
+  } else if (grepl("autocorrel", name_clean) && !grepl("function", name_clean)) {
+    key <- "autocorrelation"
+  } else if (grepl("durbin", name_clean) || grepl("serial correl", name_clean)) {
+    key <- "autocorrelation"
+  } else if (grepl("normality", name_clean) || grepl("shapiro", name_clean) || grepl("jarque", name_clean)) {
+    key <- "normality_test"
+  } else if (grepl("\\baic\\b", name_clean) && grepl("\\bbic\\b", name_clean)) {
+    key <- "aic_bic"
+  } else if (grepl("\\bbic\\b", name_clean)) {
+    key <- "aic_bic"
+  } else if (grepl("stationarity", name_clean) || grepl("unit.?root", name_clean) || grepl("\\badf\\b", name_clean) || grepl("dickey", name_clean) || grepl("ljung", name_clean) || grepl("\\bkpss\\b", name_clean)) {
+    key <- "stationarity_tests"
+  # ORIGINAL TOPICS
+  } else if (grepl("linear", name_clean) && grepl("model", name_clean)) {
     key <- "linear_model"
   } else if (grepl("assumption", name_clean)) {
     key <- "assumptions"
@@ -648,7 +1039,7 @@ R^2_adj = 1 - (1 - R^2) * (n-1)/(n-p-1)
     key <- "hausman_test"
   } else if (grepl("time.?series", name_clean) || grepl("seasonality", name_clean) || grepl("trend", name_clean)) {
     key <- "time_series"
-  } else if (grepl("acf", name_clean) || grepl("pacf", name_clean) || grepl("autocorrel", name_clean)) {
+  } else if (grepl("acf", name_clean) || grepl("pacf", name_clean)) {
     key <- "acf_pacf"
   } else if (grepl("arima", name_clean) || grepl("arma", name_clean) || grepl("\\bar\\b", name_clean) || grepl("\\bma\\b", name_clean)) {
     key <- "arima"
@@ -656,7 +1047,7 @@ R^2_adj = 1 - (1 - R^2) * (n-1)/(n-p-1)
     key <- "white_noise"
   } else if (grepl("forecast", name_clean) || grepl("holt", name_clean) || grepl("exponential.?smooth", name_clean)) {
     key <- "forecasting"
-  } else if (grepl("selection", name_clean) || grepl("aic", name_clean)) {
+  } else if (grepl("selection", name_clean) || grepl("\\baic\\b", name_clean)) {
     key <- "model_selection"
   }
 
