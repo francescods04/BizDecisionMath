@@ -75,6 +75,21 @@ show_proof("npv irr")
 show_proof("risk neutral")
 ```
 
+### 7. Formula Reference
+Quick access to 26 key formulas:
+
+```r
+# See all available formulas
+show_formula()
+
+# Recall a specific formula
+show_formula("compound interest")
+show_formula("gordon")
+show_formula("binomial option")
+```
+
+**Categories:** Interest & Time Value, Annuities, Perpetuities, Term Structure, Investment Analysis, Options.
+
 **Available proofs:**
 1. Relationship between annual rate and rate compounded k times a year
 2. Spot rate, forward rates and their relationship
