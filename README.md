@@ -90,6 +90,22 @@ show_formula("binomial option")
 
 **Categories:** Interest & Time Value, Annuities, Perpetuities, Term Structure, Investment Analysis, Options.
 
+### 8. Statistics & Regression Reference
+Quick access to 26 statistics/regression topics:
+
+```r
+# See all available topics
+show_stats()
+
+# Recall a specific topic
+show_stats("ols")
+show_stats("r squared")
+show_stats("logit")
+show_stats("arima")
+```
+
+**Categories:** Regression Fundamentals, Inference (t-test, F-test), R², Dummy Variables, Transformations, Diagnostics (VIF, Outliers), Logistic Regression, Panel Data, Time Series.
+
 **Available proofs:**
 1. Relationship between annual rate and rate compounded k times a year
 2. Spot rate, forward rates and their relationship
