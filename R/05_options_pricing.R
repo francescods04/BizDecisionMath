@@ -1,14 +1,43 @@
-#' CRR Calibration
+#' @title Cox-Ross-Rubinstein (CRR) Calibration
 #' 
-#' Calibrates the Cox-Ross-Rubinstein binomial model parameters.
-#' u = exp(sigma * sqrt(delta_t))
-#' d = exp(-sigma * sqrt(delta_t))
-#' 
-#' @param sigma Numeric. Volatility of the underlying asset.
-#' @param T Numeric. Time to maturity (years).
-#' @param n Integer. Number of steps.
-#' @param r Numeric. Risk-free annual interest rate.
-#' @return List containing u, d, p (probability up), and delta_t.
+#' @description
+#' Calibrates the parameters (u, d, p) for a Binomial Tree model based on volatility.
+#' The CRR method ensures the binomial model converges to Black-Scholes as n -> infinity.
+#'
+#' @details
+#' **Formulas:**
+#' \deqn{u = e^{\sigma \sqrt{\Delta t}}}
+#' \deqn{d = e^{-\sigma \sqrt{\Delta t}} = \frac{1}{u}}
+#' \deqn{p = \frac{e^{r \Delta t} - d}{u - d}}
+#'
+#' **Components:**
+#' - \eqn{\sigma}: Annual volatility (standard deviation of log returns)
+#' - \eqn{\Delta t}: Time step length (T/n)
+#' - \eqn{r}: Risk-free rate (continuous)
+#'
+#' **Key Property:**
+#' Recombining tree: u * d = 1. This drastically reduces computational complexity.
+#'
+#' @param sigma Numeric. Volatility of the underlying asset (e.g., 0.20 for 20%).
+#' @param T Numeric. Time to maturity in years.
+#' @param n Integer. Number of time steps.
+#' @param r Numeric. Risk-free annual interest rate (continuous).
+#' @return List containing:
+#'   \item{u}{Up factor}
+#'   \item{d}{Down factor}
+#'   \item{p}{Risk-neutral probability of up move}
+#'   \item{delta_t}{Length of each time step}
+#'
+#' @seealso 
+#' \code{\link{binomial_option_price}} which uses these parameters
+#' \code{\link{show_formula}("crr")} for theory
+#'
+#' @examples
+#' # Calibrate for: sigma=20%, T=1 year, n=2 steps, r=5%
+#' params <- crr_calibration(sigma = 0.20, T = 1, n = 2, r = 0.05)
+#' params$u  # ~1.15
+#' params$d  # ~0.87
+#'
 #' @export
 crr_calibration <- function(sigma, T, n, r) {
   delta_t <- T / n
@@ -22,22 +51,60 @@ crr_calibration <- function(sigma, T, n, r) {
   return(list(u = u, d = d, p = p, delta_t = delta_t))
 }
 
-#' Binomial Option Pricing
+#' @title Binomial Option Pricing (European)
 #' 
-#' Calculates Option Price using Binomial Tree (European).
-#' 
-#' @param S Numeric. Current stock price.
+#' @description
+#' Prices European options using a multi-step binomial tree.
+#' Supports both custom parameters (u, d) and CRR calibration from volatility.
+#'
+#' @details
+#' **Methodology:**
+#' 1. **Tree Construction:** Simulate stock price paths forward from S0 to T.
+#' 2. **Terminal Payoffs:** Calculate max(S_T - K, 0) or max(K - S_T, 0) at all final nodes.
+#' 3. **Backward Induction:** Discount values back to t=0 using risk-neutral probability p.
+#'    \deqn{V_t = e^{-r \Delta t} [p V_{t+1}^{up} + (1-p) V_{t+1}^{down}]}
+#'
+#' **Verbose Output:**
+#' Creates a detailed, exam-ready solution showing:
+#' - Parameter derivation
+#' - Full stock price tree
+#' - Terminal option values
+#' - Step-by-step backward induction
+#'
+#' **Assumptions:**
+#' - European options (exercise only at maturity)
+#' - No dividends (unless delta specified)
+#' - Frictionless market
+#'
+#' @param S Numeric. Current stock price (S0).
 #' @param K Numeric. Strike price.
-#' @param r Numeric. Risk-free interest rate (continuous, per annum).
-#' @param T Numeric. Time to maturity (in years or consistent with r).
+#' @param r Numeric. Risk-free interest rate (continuous).
+#' @param T Numeric. Time to maturity (years).
 #' @param type Character. "call" or "put".
 #' @param n Integer. Number of steps (default 1).
-#' @param sigma Numeric. Volatility (optional, for CRR calibration).
-#' @param u Numeric. Up factor (optional, can be provided directly).
-#' @param d Numeric. Down factor (optional, can be provided directly).
+#' @param sigma Numeric. Volatility (optional, for CRR).
+#' @param u Numeric. Up factor (optional, if not using CRR).
+#' @param d Numeric. Down factor (optional, if not using CRR).
 #' @param delta Numeric. Continuous dividend yield (default 0).
-#' @param verbose Logical. If TRUE, displays exam-style step-by-step solution. Default FALSE.
-#' @return Numeric option price.
+#' @param verbose Logical. If TRUE, generates a full exam-style walk-through.
+#'
+#' @return Numeric. The calculated option price.
+#'
+#' @seealso 
+#' \code{\link{crr_calibration}} for parameter calculation
+#' \code{\link{put_call_parity}} for checking results
+#' \code{\link{show_formula}("binomial")} for theory
+#'
+#' @examples
+#' # Single step example (classic exam problem)
+#' # S=100, K=100, r=5%, T=1, u=1.1, d=0.9
+#' binomial_option_price(S=100, K=100, r=0.05, T=1, u=1.1, d=0.9, n=1)
+#'
+#' # Full CRR Exam Solution:
+#' # S=50, K=50, r=10%, sigma=40%, T=5 months (5/12)
+#' # Use 5 steps (monthly)
+#' binomial_option_price(S=50, K=50, r=0.10, sigma=0.40, T=5/12, n=5, verbose=TRUE)
+#'
 #' @export
 binomial_option_price <- function(S, K, r, T, type = "call", n = 1, sigma = NULL, u = NULL, d = NULL, delta = 0, verbose = getOption("BizDecisionMath.verbose", FALSE)) {
   
@@ -102,12 +169,7 @@ binomial_option_price <- function(S, K, r, T, type = "call", n = 1, sigma = NULL
       }
       
       # Store t=1 prices for verbose (BEFORE updating option_values)
-      # When step==n-1, we're calculating prices at t=1 (moving from t=n to t=n-1)
-      # For n=2: when step==2, we're calculating t=1 from t=2
-      # We need to store BEFORE assigning to option_values
       if (verbose && step == n && n >= 2) {
-        # This is the first backward step: from t=n to t=n-1
-        # Store these as t=(n-1) prices
         prices_t1 <- current_values
       }
       
@@ -198,9 +260,7 @@ binomial_option_price <- function(S, K, r, T, type = "call", n = 1, sigma = NULL
                 type, K, T * 12))
     
     for (i in seq_along(option_payoffs)) {
-      # Use superscript notation: c₂⁰, c₂¹, c₂²
       node_time <- n
-      node_position <- i - 1
       
       if (type == "call") {
         cat(sprintf("   c%d%s = max(0; %.2f - %.0f) = %.2f", 
@@ -261,10 +321,8 @@ binomial_option_price <- function(S, K, r, T, type = "call", n = 1, sigma = NULL
       
     } else if (n >= 2) {
       symbol <- ifelse(type == "call", "c", "p")
-      # prices_t1 has length n after backward induction from n to 1
-      # For n=2: prices_t1 has indices 1 and 2 representing V_0^(1) and V_1^(1)
-      val_up <- prices_t1[length(prices_t1)]  # Last element (upper node at t=1)
-      val_down <- prices_t1[1]  # First element (lower node at t=1)
+      val_up <- prices_t1[length(prices_t1)]
+      val_down <- prices_t1[1]
       
       cat("This drives us to the initial price:\n\n")
       cat(sprintf("   %s₀ = (%.4f · %.3f + %.4f · %.3f) × e^(-%.4f×%.4f)\n", 
@@ -281,19 +339,48 @@ binomial_option_price <- function(S, K, r, T, type = "call", n = 1, sigma = NULL
   return(result_price)
 }
 
-#' Put-Call Parity
+#' @title Put-Call Parity (Verification & Calculation)
 #' 
-#' Verifies or calculates prices using put-call parity.
-#' C - P = S - K × e^(-r×T)
-#' 
-#' @param S Numeric. Current stock price.
+#' @description
+#' Verifies if Put-Call Parity holds (Arbitrage Check) or calculates a missing 
+#' value (European Option Pricing) if one inputs is NULL.
+#'
+#' @details
+#' **Parity Relationship:**
+#' \deqn{C - P = S - K e^{-rT}}
+#'
+#' **Arbitrage Conditions:**
+#' - If \eqn{C - P > S - Ke^{-rT}}: Call is overvalued. Sell C, Buy P+S, Borrow Ke^{-rT}
+#' - If \eqn{C - P < S - Ke^{-rT}}: Put is overvalued. Sell P, Buy C, Short S, Lend Ke^{-rT}
+#'
+#' **Use Cases:**
+#' - Pricing synthetic options
+#' - Identifying arbitrage opportunities
+#' - Validating option market data
+#'
+#' @param S Numeric. Stock price.
 #' @param K Numeric. Strike price.
 #' @param r Numeric. Risk-free rate.
 #' @param T Numeric. Time to maturity.
-#' @param call_price Numeric. Call option price (if known).
-#' @param put_price Numeric. Put option price (if known).
-#' @param verbose Logical. If TRUE, displays formula and calculation. Default FALSE.
-#' @return Numeric or List. If both call and put prices are provided, returns the arbitrage check. Otherwise returns the missing price.
+#' @param call_price Numeric. Call price (optional).
+#' @param put_price Numeric. Put price (optional).
+#' @param verbose Logical. If TRUE, displays detailed analysis.
+#'
+#' @return 
+#' - If one price missing: Reimputed price (Numeric)
+#' - If both prices present: List with arbitrage check logic
+#'
+#' @seealso 
+#' \code{\link{binomial_option_price}}
+#' \code{\link{put_call_parity_solver}} simplified version
+#'
+#' @examples
+#' # Calculate Put Price
+#' put_call_parity(S=100, K=100, r=0.05, T=1, call_price=10)
+#'
+#' # Check for Arbitrage
+#' put_call_parity(S=100, K=100, r=0.05, T=1, call_price=10, put_price=3, verbose=TRUE)
+#'
 #' @export
 put_call_parity <- function(S, K, r, T, call_price = NULL, put_price = NULL, verbose = getOption("BizDecisionMath.verbose", FALSE)) {
   
@@ -332,7 +419,7 @@ put_call_parity <- function(S, K, r, T, call_price = NULL, put_price = NULL, ver
     return(list(arbitrage = arbitrage, expected_diff = parity_diff, actual_diff = actual_diff))
     
   } else if (!is.null(call_price)) {
-    # Calculate put price
+    # Calculate put price: P = C - (S - Ke^-rT)
     put_price_calc <- call_price - parity_diff
     
     if (verbose) {
@@ -354,7 +441,7 @@ put_call_parity <- function(S, K, r, T, call_price = NULL, put_price = NULL, ver
     return(put_price_calc)
     
   } else if (!is.null(put_price)) {
-    # Calculate call price
+    # Calculate call price: C = P + (S - Ke^-rT)
     call_price_calc <- put_price + parity_diff
     
     if (verbose) {
@@ -376,6 +463,6 @@ put_call_parity <- function(S, K, r, T, call_price = NULL, put_price = NULL, ver
     return(call_price_calc)
     
   } else {
-    stop("Must provide at least one of call_price or put_price")
+    stop("Must provide at least one of call_price or put_price. If finding S or K, use solver.")
   }
 }

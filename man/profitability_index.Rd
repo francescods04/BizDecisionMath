@@ -2,22 +2,63 @@
 % Please edit documentation in R/04_advanced_investments.R
 \name{profitability_index}
 \alias{profitability_index}
-\title{Profitability Index}
+\title{Profitability Index (PI)}
 \usage{
-profitability_index(cash_flows, times = NULL, i)
+profitability_index(
+  cash_flows,
+  times = NULL,
+  i,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{cash_flows}{Numeric vector. The cash flows.}
+\item{cash_flows}{Numeric vector. The cash flows (must include initial investment at t=0).}
 
 \item{times}{Numeric vector. The times (default 0:(n-1)).}
 
 \item{i}{Numeric. The discount rate.}
+
+\item{verbose}{Logical. If TRUE, prints detailed calculation steps and interpretation.}
 }
 \value{
 Numeric. The Profitability Index.
 }
 \description{
-Calculates the Profitability Index (PI).
-Formula: PI = PV(Future Cash Flows) / Absolute(Initial Investment)
-         PI = (NPV + |C0|) / |C0|
+Calculates the Profitability Index, also known as the Benefit-Cost Ratio.
+Measures the value created per unit of investment.
+}
+\details{
+**Mathematical Formula:**
+\deqn{PI = \frac{PV(\text{Future Inflows})}{\text{Initial Investment}}}
+\deqn{PI = \frac{NPV + |C_0|}{|C_0|} = 1 + \frac{NPV}{|C_0|}}
+
+**Decision Rule:**
+- PI > 1: Accept project (equivalent to NPV > 0)
+- PI < 1: Reject project
+- PI = 1: Indifferent
+
+**Use Cases:**
+- Capital rationing: When budget is limited, rank projects by PI
+- Comparing projects of different sizes
+
+**Interpretation:**
+A PI of 1.15 means for every 1€ invested, the project returns 1.15€ in present value terms.
+}
+\examples{
+# Project: Invest 1000, receive 1200 in 1 year at 10\% rate
+# PV(Inflow) = 1200/1.1 = 1090.9
+# PI = 1090.9 / 1000 = 1.09
+profitability_index(c(-1000, 1200), i = 0.10)
+
+# Capital rationing exam problem:
+# Choose between Project A (Cost 100, NPV 20) and Project B (Cost 50, NPV 15).
+# PI_A = (120)/100 = 1.20
+# PI_B = (65)/50 = 1.30
+# Conclusion: Project B is more efficient per dollar invested.
+profitability_index(c(-100, 132), i = 0.10) # A approx
+
+}
+\seealso{
+\code{\link{calculate_npv}} for absolute value measure
+\code{\link{calculate_irr}} for rate of return measure
 }

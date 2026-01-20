@@ -2,7 +2,7 @@
 % Please edit documentation in R/03_investment_analysis.R
 \name{calculate_npv}
 \alias{calculate_npv}
-\title{Calculate Net Present Value (NPV)}
+\title{Net Present Value (NPV)}
 \usage{
 calculate_npv(
   cash_flows,
@@ -12,18 +12,62 @@ calculate_npv(
 )
 }
 \arguments{
-\item{cash_flows}{Numeric vector. The cash flows (must include initial investment at t=0).}
+\item{cash_flows}{Numeric vector. Cash flows including initial investment at t=0.
+Typically: c(-initial_investment, CF1, CF2, ..., CFn)}
 
-\item{times}{Numeric vector. The times corresponding to cash flows (default 0:(n-1)).}
+\item{times}{Numeric vector. Times corresponding to each cash flow.
+Default: 0, 1, 2, ... (assumes annual cash flows starting at t=0).}
 
-\item{i}{Numeric. The annual interest rate (opportunity cost of capital).}
+\item{i}{Numeric. The discount rate (opportunity cost of capital).}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
 Numeric. The Net Present Value.
 }
 \description{
-Calculates the NPV of a series of cash flows.
-Formula: NPV = Sum(CashFlow_t / (1 + i)^t)
+Calculates the Net Present Value of a series of cash flows at a given discount rate.
+NPV is the fundamental metric for evaluating investment projects.
+}
+\details{
+**Mathematical Formula:**
+\deqn{NPV = \sum_{t=0}^{n} \frac{CF_t}{(1+i)^t}}
+
+**Decision Rule:**
+- NPV > 0: Accept the project (creates value)
+- NPV < 0: Reject the project (destroys value)
+- NPV = 0: Indifferent (earns exactly the required return)
+
+**Key Properties:**
+- Accounts for time value of money
+- Considers all cash flows
+- Provides absolute value creation measure
+- Additive: NPV(A+B) = NPV(A) + NPV(B)
+
+**Relationship to IRR:**
+NPV(IRR) = 0 by definition
+}
+\examples{
+# Basic usage: Initial investment -1000, returns 300, 400, 500 over 3 years at 10\%
+calculate_npv(cash_flows = c(-1000, 300, 400, 500), i = 0.10)
+
+# With verbose output for exam
+calculate_npv(cash_flows = c(-1000, 300, 400, 500), i = 0.10, verbose = TRUE)
+
+# Exam problem: Project evaluation
+# A machine costs 50,000€ and generates cash flows of:
+# Year 1: 15,000€, Year 2: 20,000€, Year 3: 25,000€, Year 4: 10,000€
+# Cost of capital is 8\%. Should the company invest?
+calculate_npv(c(-50000, 15000, 20000, 25000, 10000), i = 0.08, verbose = TRUE)
+
+# Non-standard timing: Cash flow at t=0.5 (6 months)
+calculate_npv(c(-1000, 500, 600), times = c(0, 0.5, 1.5), i = 0.10)
+
+}
+\seealso{
+\code{\link{calculate_irr}} for Internal Rate of Return
+\code{\link{profitability_index}} for PI calculation
+\code{\link{payback_period}} for payback analysis
+\code{\link{generalized_npv}} for NPV with term structure
+\code{\link{show_proof}("npv irr")} for NPV-IRR equivalence proof
 }

@@ -2,25 +2,53 @@
 % Please edit documentation in R/06_portfolio_selection.R
 \name{solve_market_portfolio_return}
 \alias{solve_market_portfolio_return}
-\title{Market Portfolio Return (from Frontier)}
+\title{Market Portfolio Return (Tangency Portfolio)}
 \usage{
-solve_market_portfolio_return(r_f, A, B, C)
+solve_market_portfolio_return(
+  r,
+  A,
+  B,
+  C,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{r_f}{Numeric. Risk-free rate.}
+\item{r}{Numeric. Risk-free rate.}
 
-\item{A}{Numeric.}
+\item{A}{Numeric. Frontier coefficient for mu^2.}
 
-\item{B}{Numeric.}
+\item{B}{Numeric. Frontier coefficient for mu.}
 
-\item{C}{Numeric.}
+\item{C}{Numeric. Frontier coefficient (constant).}
+
+\item{verbose}{Logical. If TRUE, displays calculation steps.}
 }
 \value{
 Numeric. The expected return of the market portfolio.
 }
 \description{
-Calculates the Market Portfolio expected return (mu_M) given the efficient frontier coefficients and risk-free rate.
-The market portfolio is the tangency portfolio.
-Formula derived from max slope (Sharpe Ratio): (mu_M - r_f) / sigma_M
-For the frontier sigma = sqrt(A*mu^2 + B*mu + C), the CML is tangent.
+Calculates the expected return of the Market Portfolio (\eqn{\mu_M}) given the 
+efficient frontier parameters and the risk-free rate.
+The Market Portfolio is the point where the Capital Market Line (CML) is tangent to the Efficient Frontier.
+}
+\details{
+**Mathematical Formula:**
+Derived from maximizing the Sharpe Ratio (tangency condition):
+\deqn{\mu_M = \frac{-2C + B r}{B + 2A r}}
+
+**Note:** The parameter names A, B, C follow the convention:
+\eqn{\sigma^2 = A \mu^2 + B \mu + C}
+
+**Significance:**
+This portfolio maximizes the Sharpe Ratio: \eqn{\frac{\mu - r}{\sigma}}.
+It is the unique portfolio of risky assets held by all rational investors in the CAPM world.
+}
+\examples{
+# Frontier: sigma = sqrt(40*mu^2 - 4*mu + 0.2)
+# Risk-free rate: 2\%
+solve_market_portfolio_return(r=0.02, A=40, B=-4, C=0.2, verbose=TRUE)
+
+}
+\seealso{
+\code{\link{efficient_frontier_risk}}
 }

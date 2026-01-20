@@ -2,21 +2,55 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{calc_simple_discount}
 \alias{calc_simple_discount}
-\title{Calculate Simple Discount}
+\title{Simple Discount (Present Value)}
 \usage{
-calc_simple_discount(S, i, t)
+calc_simple_discount(
+  S,
+  i,
+  t,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{S}{Numeric. The nominal value (future amount).}
+\item{S}{Numeric. The nominal/future value to be discounted.}
 
-\item{i}{Numeric. The simple annual interest rate.}
+\item{i}{Numeric. The simple annual interest rate (decimal).}
 
-\item{t}{Numeric. The time in years.}
+\item{t}{Numeric. The time in years until the amount is received.}
+
+\item{verbose}{Logical. If TRUE, displays step-by-step calculation.}
 }
 \value{
 Numeric. The present value A.
 }
 \description{
-Calculates the present value A of a nominal value S available at a future date t, using simple discount.
-Formula: A = S / (1 + i * t)
+Calculates the present value (A) of a future amount using simple discount.
+This is the inverse operation of simple accumulation.
+}
+\details{
+**Mathematical Formula:**
+\deqn{A = \frac{S}{1 + i \times t}}
+
+**Use Cases:**
+- Discounting short-term receivables
+- Calculating the price of Treasury bills
+- Present value of amounts due within one year
+
+**Relationship to Accumulation:**
+If M = C × (1 + it), then C = M / (1 + it)
+}
+\examples{
+# Basic usage: Present value of 1100€ due in 2 years at 5\%
+calc_simple_discount(S = 1100, i = 0.05, t = 2)
+# Returns: 1000
+
+# Exam problem: Treasury bill pricing
+# A T-bill with face value 10,000€ matures in 90 days.
+# Market rate is 4\%. What is its price?
+calc_simple_discount(S = 10000, i = 0.04, t = 90/365)
+
+}
+\seealso{
+\code{\link{calc_simple_accumulation}} for the inverse operation
+\code{\link{calc_compound_discount}} for compound discounting
 }

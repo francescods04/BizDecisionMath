@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{calc_simple_accumulation}
 \alias{calc_simple_accumulation}
-\title{Calculate Simple Interest (Accumulation)}
+\title{Simple Interest Accumulation}
 \usage{
 calc_simple_accumulation(
   C,
@@ -12,18 +12,54 @@ calc_simple_accumulation(
 )
 }
 \arguments{
-\item{C}{Numeric. The principal amount (wealth at t=0).}
+\item{C}{Numeric. The principal amount (initial capital at t=0).}
 
-\item{i}{Numeric. The simple annual interest rate (decimal, e.g., 0.03 for 3%).}
+\item{i}{Numeric. The simple annual interest rate (as decimal, e.g., 0.05 for 5%).}
 
-\item{t}{Numeric. The time in years.}
+\item{t}{Numeric. The time in years (can be fractional, e.g., 0.5 for 6 months).}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style step-by-step calculation.
+Default uses global option `BizDecisionMath.verbose`.}
 }
 \value{
-Numeric. The final value M.
+Numeric. The final accumulated value M.
 }
 \description{
-Calculates the final value M of a principal C invested at a simple annual interest rate i for a time t.
-Formula: M = C * (1 + i * t)
+Calculates the final value (M) of a principal invested at simple interest.
+Simple interest means interest is calculated only on the original principal,
+not on accumulated interest.
+}
+\details{
+**Mathematical Formula:**
+\deqn{M = C \times (1 + i \times t)}
+
+**Key Properties of Simple Interest:**
+- Interest grows linearly with time
+- NOT decomposable (cannot split time periods)
+- Used for short-term investments (< 1 year)
+
+**Notation:**
+- M = Final (accumulated) value
+- C = Principal (initial capital)
+- i = Simple annual interest rate
+- t = Time in years
+}
+\examples{
+# Basic usage: 1000€ at 5\% for 2 years
+calc_simple_accumulation(C = 1000, i = 0.05, t = 2)
+# Returns: 1100
+
+# With verbose output for exam preparation
+calc_simple_accumulation(C = 1000, i = 0.05, t = 2, verbose = TRUE)
+
+# Exam problem: Short-term deposit
+# A bank offers 3\% simple interest on a 6-month deposit.
+# How much will 5000€ grow to?
+calc_simple_accumulation(C = 5000, i = 0.03, t = 0.5)
+
+}
+\seealso{
+\code{\link{calc_simple_discount}} for present value with simple interest
+\code{\link{calc_compound_accumulation}} for compound interest
+\code{\link{show_formula}("simple interest")} for theoretical formula
 }

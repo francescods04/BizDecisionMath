@@ -2,7 +2,7 @@
 % Please edit documentation in R/05_options_pricing.R
 \name{binomial_option_price}
 \alias{binomial_option_price}
-\title{Binomial Option Pricing}
+\title{Binomial Option Pricing (European)}
 \usage{
 binomial_option_price(
   S,
@@ -19,31 +19,67 @@ binomial_option_price(
 )
 }
 \arguments{
-\item{S}{Numeric. Current stock price.}
+\item{S}{Numeric. Current stock price (S0).}
 
 \item{K}{Numeric. Strike price.}
 
-\item{r}{Numeric. Risk-free interest rate (continuous, per annum).}
+\item{r}{Numeric. Risk-free interest rate (continuous).}
 
-\item{T}{Numeric. Time to maturity (in years or consistent with r).}
+\item{T}{Numeric. Time to maturity (years).}
 
 \item{type}{Character. "call" or "put".}
 
 \item{n}{Integer. Number of steps (default 1).}
 
-\item{sigma}{Numeric. Volatility (optional, for CRR calibration).}
+\item{sigma}{Numeric. Volatility (optional, for CRR).}
 
-\item{u}{Numeric. Up factor (optional, can be provided directly).}
+\item{u}{Numeric. Up factor (optional, if not using CRR).}
 
-\item{d}{Numeric. Down factor (optional, can be provided directly).}
+\item{d}{Numeric. Down factor (optional, if not using CRR).}
 
 \item{delta}{Numeric. Continuous dividend yield (default 0).}
 
-\item{verbose}{Logical. If TRUE, displays exam-style step-by-step solution. Default FALSE.}
+\item{verbose}{Logical. If TRUE, generates a full exam-style walk-through.}
 }
 \value{
-Numeric option price.
+Numeric. The calculated option price.
 }
 \description{
-Calculates Option Price using Binomial Tree (European).
+Prices European options using a multi-step binomial tree.
+Supports both custom parameters (u, d) and CRR calibration from volatility.
+}
+\details{
+**Methodology:**
+1. **Tree Construction:** Simulate stock price paths forward from S0 to T.
+2. **Terminal Payoffs:** Calculate max(S_T - K, 0) or max(K - S_T, 0) at all final nodes.
+3. **Backward Induction:** Discount values back to t=0 using risk-neutral probability p.
+   \deqn{V_t = e^{-r \Delta t} [p V_{t+1}^{up} + (1-p) V_{t+1}^{down}]}
+
+**Verbose Output:**
+Creates a detailed, exam-ready solution showing:
+- Parameter derivation
+- Full stock price tree
+- Terminal option values
+- Step-by-step backward induction
+
+**Assumptions:**
+- European options (exercise only at maturity)
+- No dividends (unless delta specified)
+- Frictionless market
+}
+\examples{
+# Single step example (classic exam problem)
+# S=100, K=100, r=5\%, T=1, u=1.1, d=0.9
+binomial_option_price(S=100, K=100, r=0.05, T=1, u=1.1, d=0.9, n=1)
+
+# Full CRR Exam Solution:
+# S=50, K=50, r=10\%, sigma=40\%, T=5 months (5/12)
+# Use 5 steps (monthly)
+binomial_option_price(S=50, K=50, r=0.10, sigma=0.40, T=5/12, n=5, verbose=TRUE)
+
+}
+\seealso{
+\code{\link{crr_calibration}} for parameter calculation
+\code{\link{put_call_parity}} for checking results
+\code{\link{show_formula}("binomial")} for theory
 }

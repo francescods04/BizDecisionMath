@@ -2,7 +2,7 @@
 % Please edit documentation in R/03_investment_analysis.R
 \name{gordon_model}
 \alias{gordon_model}
-\title{Gordon Growth Model}
+\title{Gordon Growth Model (Dividend Discount Model)}
 \usage{
 gordon_model(
   d,
@@ -14,22 +14,64 @@ gordon_model(
 )
 }
 \arguments{
-\item{d}{Numeric. The dividend payment (usually next year's dividend d1).}
+\item{d}{Numeric. The next year's dividend (D₁).}
 
-\item{i}{Numeric. The required rate of return (must be > g).}
+\item{i}{Numeric. The required rate of return (cost of equity).}
 
-\item{g}{Numeric. The constant growth rate of dividends.}
+\item{g}{Numeric. The constant dividend growth rate.}
 
-\item{P_future}{Numeric. Optional future selling price at year n (if model is finite).}
+\item{P_future}{Numeric. Terminal stock price at year n (for finite horizon).}
 
-\item{n}{Integer. Number of years if finite horizon. If infinite (default), n is ignored.}
+\item{n}{Numeric. Number of years (Inf for infinite horizon).}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The stock value.
+Numeric. The intrinsic stock value P₀.
 }
 \description{
-Calculates the value of a stock based on future dividends.
-Formula: P = d / (i - g)
+Calculates the intrinsic value of a stock based on future dividend payments.
+Also known as the Dividend Discount Model (DDM) or Gordon-Shapiro Model.
+}
+\details{
+**Mathematical Formulas:**
+
+Infinite Horizon (standard Gordon Growth):
+\deqn{P_0 = \frac{D_1}{i - g}}
+
+Finite Horizon (with terminal value):
+\deqn{P_0 = \frac{D_1}{i-g} \times \left[1 - \left(\frac{1+g}{1+i}\right)^n\right] + \frac{P_n}{(1+i)^n}}
+
+**Key Assumptions:**
+1. Dividends grow at a constant rate g forever
+2. Required return i > growth rate g
+3. Company pays dividends
+
+**Relationship to Perpetuity:**
+This is mathematically equivalent to a growing perpetuity.
+
+**Limitations:**
+- Not suitable for non-dividend paying stocks
+- Assumes constant growth (may not hold)
+- Sensitive to the g and i estimates
+}
+\examples{
+# Basic usage: D₁ = 2€, required return 10\%, growth 3\%
+gordon_model(d = 2, i = 0.10, g = 0.03)
+# Returns: 28.57
+
+# Exam problem: Stock valuation
+# A company just paid a dividend of 1.50€. Dividends grow 4\% annually.
+# If required return is 12\%, what is the stock worth?
+# Note: d should be NEXT year's dividend = 1.50 * 1.04
+gordon_model(d = 1.50 * 1.04, i = 0.12, g = 0.04, verbose = TRUE)
+
+# Finite horizon: Hold for 5 years, then sell at P₅ = 50€
+gordon_model(d = 2, i = 0.10, g = 0.03, P_future = 50, n = 5)
+
+}
+\seealso{
+\code{\link{perpetuity_pv}} for the underlying perpetuity calculation
+\code{\link{geom_annuity_pv}} for finite growing cash flows
+\code{\link{show_formula}("gordon")} for theoretical formula
 }

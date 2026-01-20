@@ -2,20 +2,67 @@
 % Please edit documentation in R/03_investment_analysis.R
 \name{payback_period}
 \alias{payback_period}
-\title{Calculate Payback Period}
+\title{Payback Period}
 \usage{
 payback_period(cash_flows, times = NULL, i = 0)
 }
 \arguments{
-\item{cash_flows}{Numeric vector. The series of cash flows.}
+\item{cash_flows}{Numeric vector. Cash flows including initial investment.}
 
-\item{times}{Numeric vector. The times corresponding to cash flows.}
+\item{times}{Numeric vector. Times corresponding to cash flows.}
 
-\item{i}{Numeric. Discount rate (set 0 for simple payback, >0 for discounted).}
+\item{i}{Numeric. Discount rate (0 for simple payback, >0 for discounted).}
 }
 \value{
-Numeric. The payback period (interpolated).
+Numeric. The payback period (interpolated). Returns NA if never pays back.
 }
 \description{
-Calculates the (simple and discounted) payback period.
+Calculates the time required to recover the initial investment.
+Supports both simple (undiscounted) and discounted payback period.
+}
+\details{
+**Definition:**
+The payback period is the time at which cumulative cash flows equal zero.
+
+**Types:**
+- Simple Payback (i = 0): Ignores time value of money
+- Discounted Payback (i > 0): Uses discounted cash flows
+
+**Calculation:**
+1. Calculate cumulative (discounted) cash flows
+2. Find when cumulative total crosses zero
+3. Interpolate for exact crossing point
+
+**Decision Rule:**
+Accept if payback < maximum acceptable payback period
+
+**Limitations:**
+- Ignores cash flows after payback
+- Simple payback ignores time value
+- Doesn't measure profitability
+
+**Use Cases:**
+- Liquidity-constrained firms
+- Projects with high uncertainty beyond near term
+- Quick screening of projects
+}
+\examples{
+# Simple payback: Investment 1000, annual returns 300
+payback_period(c(-1000, 300, 300, 300, 300, 300), i = 0)
+# Returns: 3.33 years
+
+# Discounted payback at 10\%
+payback_period(c(-1000, 300, 300, 300, 300, 300), i = 0.10)
+# Returns: longer than simple payback
+
+# Exam problem: Project payback
+# Investment: 50,000€. Annual cash flows: 15,000€ for 5 years.
+# Calculate simple and discounted (8\%) payback periods.
+payback_period(c(-50000, rep(15000, 5)), i = 0)     # Simple
+payback_period(c(-50000, rep(15000, 5)), i = 0.08)  # Discounted
+
+}
+\seealso{
+\code{\link{calculate_npv}} for comprehensive project evaluation
+\code{\link{calculate_irr}} for rate of return
 }

@@ -2,24 +2,52 @@
 % Please edit documentation in R/05_options_pricing.R
 \name{crr_calibration}
 \alias{crr_calibration}
-\title{CRR Calibration}
+\title{Cox-Ross-Rubinstein (CRR) Calibration}
 \usage{
 crr_calibration(sigma, T, n, r)
 }
 \arguments{
-\item{sigma}{Numeric. Volatility of the underlying asset.}
+\item{sigma}{Numeric. Volatility of the underlying asset (e.g., 0.20 for 20%).}
 
-\item{T}{Numeric. Time to maturity (years).}
+\item{T}{Numeric. Time to maturity in years.}
 
-\item{n}{Integer. Number of steps.}
+\item{n}{Integer. Number of time steps.}
 
-\item{r}{Numeric. Risk-free annual interest rate.}
+\item{r}{Numeric. Risk-free annual interest rate (continuous).}
 }
 \value{
-List containing u, d, p (probability up), and delta_t.
+List containing:
+  \item{u}{Up factor}
+  \item{d}{Down factor}
+  \item{p}{Risk-neutral probability of up move}
+  \item{delta_t}{Length of each time step}
 }
 \description{
-Calibrates the Cox-Ross-Rubinstein binomial model parameters.
-u = exp(sigma * sqrt(delta_t))
-d = exp(-sigma * sqrt(delta_t))
+Calibrates the parameters (u, d, p) for a Binomial Tree model based on volatility.
+The CRR method ensures the binomial model converges to Black-Scholes as n -> infinity.
+}
+\details{
+**Formulas:**
+\deqn{u = e^{\sigma \sqrt{\Delta t}}}
+\deqn{d = e^{-\sigma \sqrt{\Delta t}} = \frac{1}{u}}
+\deqn{p = \frac{e^{r \Delta t} - d}{u - d}}
+
+**Components:**
+- \eqn{\sigma}: Annual volatility (standard deviation of log returns)
+- \eqn{\Delta t}: Time step length (T/n)
+- \eqn{r}: Risk-free rate (continuous)
+
+**Key Property:**
+Recombining tree: u * d = 1. This drastically reduces computational complexity.
+}
+\examples{
+# Calibrate for: sigma=20\%, T=1 year, n=2 steps, r=5\%
+params <- crr_calibration(sigma = 0.20, T = 1, n = 2, r = 0.05)
+params$u  # ~1.15
+params$d  # ~0.87
+
+}
+\seealso{
+\code{\link{binomial_option_price}} which uses these parameters
+\code{\link{show_formula}("crr")} for theory
 }

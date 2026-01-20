@@ -2,21 +2,57 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{calc_compound_discount}
 \alias{calc_compound_discount}
-\title{Calculate Compound Discount (Present Value)}
+\title{Compound Discount (Present Value)}
 \usage{
-calc_compound_discount(S, i, t)
+calc_compound_discount(
+  S,
+  i,
+  t,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{S}{Numeric. The nominal value.}
+\item{S}{Numeric. The nominal/future value.}
 
-\item{i}{Numeric. The annual interest rate.}
+\item{i}{Numeric. The annual interest rate (decimal).}
 
 \item{t}{Numeric. The time in years.}
+
+\item{verbose}{Logical. If TRUE, displays calculation steps.}
 }
 \value{
 Numeric. The present value A.
 }
 \description{
-Calculates the present value A in compound interest.
-Formula: A = S * (1 + i)^(-t)
+Calculates the present value (A) of a future amount using compound discount.
+This is the inverse of compound accumulation.
+}
+\details{
+**Mathematical Formula:**
+\deqn{A = S \times (1 + i)^{-t} = \frac{S}{(1 + i)^t}}
+
+**Discount Factor:**
+- v = (1 + i)^(-1) is the one-period discount factor
+- v^t = (1 + i)^(-t) is the t-period discount factor
+
+**Use Cases:**
+- Valuing future cash flows (NPV analysis)
+- Bond pricing
+- Pension fund calculations
+}
+\examples{
+# Basic usage: Present value of 1628.89€ due in 10 years at 5\%
+calc_compound_discount(S = 1628.89, i = 0.05, t = 10)
+# Returns: ~1000
+
+# Exam problem: Zero-coupon bond pricing
+# A zero-coupon bond pays 100,000€ at maturity in 5 years.
+# Market interest rate is 6\%. What is the bond's price?
+calc_compound_discount(S = 100000, i = 0.06, t = 5, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{calc_compound_accumulation}} for the inverse operation
+\code{\link{calculate_npv}} for discounting multiple cash flows
+\code{\link{annuity_pv}} for discounting annuity payments
 }

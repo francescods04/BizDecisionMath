@@ -2,28 +2,80 @@
 % Please edit documentation in R/02_advanced_annuities.R
 \name{geom_annuity_pv}
 \alias{geom_annuity_pv}
-\title{Present Value of Geometric Annuity}
+\title{Present Value of Geometric (Growing) Annuity}
 \usage{
-geom_annuity_pv(R, g, i, n, type = "ordinary", deferral = 0)
+geom_annuity_pv(
+  R,
+  g,
+  i,
+  n,
+  type = "ordinary",
+  deferral = 0,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
 \item{R}{Numeric. The first payment amount.}
 
-\item{g}{Numeric. The growth rate of payments.}
+\item{g}{Numeric. The growth rate of payments per period (decimal).}
 
-\item{i}{Numeric. The interest rate.}
+\item{i}{Numeric. The interest/discount rate per period (decimal).}
 
-\item{n}{Integer. The number of periods.}
+\item{n}{Integer. The number of payment periods.}
 
-\item{type}{Character. "ordinary" or "due". Default "ordinary".}
+\item{type}{Character. `"ordinary"` (default) or `"due"`.}
 
-\item{deferral}{Integer. Number of periods to defer the start of the annuity (default 0).}
+\item{deferral}{Integer. Number of periods to defer the annuity (default 0).}
+
+\item{verbose}{Logical. If TRUE, displays exam-style step-by-step solution.}
 }
 \value{
-Numeric. The present value.
+Numeric. The present value of the growing annuity.
 }
 \description{
-Calculates PV of an annuity with geometrically increasing payments.
-Formulas (Ordinary): PV = (R / (i - g)) * (1 - ((1 + g)/(1 + i))^n) * (1 + i)^-deferral
-Formula (Due): PV = (R * (1 + i)) / (i - g) * (1 - ((1 + g)/(1 + i))^n) * (1 + i)^-deferral
+Calculates the present value of an annuity where payments grow at a constant rate g
+each period. Also known as a growing annuity or escalating payment annuity.
+}
+\details{
+**Mathematical Formulas:**
+
+Ordinary Growing Annuity (i ≠ g):
+\deqn{PV = \frac{R}{i-g} \times \left[1 - \left(\frac{1+g}{1+i}\right)^n\right]}
+
+Due Growing Annuity (i ≠ g):
+\deqn{PV = \frac{R \times (1+i)}{i-g} \times \left[1 - \left(\frac{1+g}{1+i}\right)^n\right]}
+
+Special Case (i = g):
+\deqn{PV = \frac{n \times R}{1+i}}
+
+**Payment Pattern:**
+- Period 1: R
+- Period 2: R(1+g)
+- Period 3: R(1+g)²
+- Period n: R(1+g)^(n-1)
+
+**Use Cases:**
+- Salary-indexed pension payments
+- Inflation-adjusted income streams
+- Leases with built-in rent increases
+}
+\examples{
+# Basic usage: 10,000€ first payment, growing 2\%/year for 10 years at 5\%
+geom_annuity_pv(R = 10000, g = 0.02, i = 0.05, n = 10)
+
+# Exam problem: Pension valuation
+# An employee will receive a pension starting at 30,000€/year,
+# increasing 3\% annually for 20 years. Discount rate is 6\%.
+# What is the present value of this pension?
+geom_annuity_pv(R = 30000, g = 0.03, i = 0.06, n = 20, verbose = TRUE)
+
+# Deferred growing annuity: pension starts in 5 years
+geom_annuity_pv(R = 30000, g = 0.03, i = 0.06, n = 20, deferral = 5)
+
+}
+\seealso{
+\code{\link{annuity_pv}} for constant payment annuity
+\code{\link{perpetuity_pv}} for infinite growing payments (Gordon Growth)
+\code{\link{show_formula}("growing annuity")} for theoretical formula
+\code{\link{show_proof}("growing annuity")} for mathematical proof
 }

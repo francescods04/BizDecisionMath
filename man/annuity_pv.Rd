@@ -16,20 +16,63 @@ annuity_pv(
 \arguments{
 \item{R}{Numeric. The periodic payment amount.}
 
-\item{i}{Numeric. The interest rate consistent with the period (e.g., use monthly rate for monthly payments).}
+\item{i}{Numeric. The interest rate per period (match payment frequency!).}
 
-\item{n}{Integer. The number of periods.}
+\item{n}{Integer. The number of payment periods.}
 
-\item{type}{Character. "ordinary" (end of period) or "due" (beginning of period). Default "ordinary".}
+\item{type}{Character. `"ordinary"` (default) or `"due"`.}
 
-\item{deferral}{Integer. Number of periods to defer the start of the annuity (default 0).}
+\item{deferral}{Integer. Number of periods to defer start (default 0).}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The present value.
+Numeric. The present value of the annuity.
 }
 \description{
-Calculates the present value of an annuity.
-Supports ordinary (post-icipated) and due (pre-icipated) annuities, with optional deferral.
+Calculates the present value of a series of equal periodic payments.
+Supports ordinary (end of period), due (beginning of period), and deferred annuities.
+}
+\details{
+**Mathematical Formulas:**
+
+Ordinary Annuity (payments at END of each period):
+\deqn{PV = R \times \frac{1 - (1+i)^{-n}}{i} = R \times a_{\overline{n}|i}}
+
+Due Annuity (payments at START of each period):
+\deqn{PV = R \times \frac{1 - (1+i)^{-n}}{i} \times (1+i) = R \times \ddot{a}_{\overline{n}|i}}
+
+Deferred Annuity (starts after k periods):
+\deqn{PV = R \times a_{\overline{n}|i} \times (1+i)^{-k}}
+
+**Key Concepts:**
+- Ordinary: First payment at t=1 (e.g., loan payments)
+- Due: First payment at t=0 (e.g., rent, insurance premiums)
+- Deferred: First payment at t=k+1
+}
+\examples{
+# Basic ordinary annuity: 100€/month for 5 years at 0.5\% monthly
+annuity_pv(R = 100, i = 0.005, n = 60)
+# Returns: ~5172
+
+# Due annuity (payments at beginning): same parameters
+annuity_pv(R = 100, i = 0.005, n = 60, type = "due")
+# Returns: ~5198 (higher because payments received earlier)
+
+# Deferred annuity: starts after 2 years (24 months)
+annuity_pv(R = 100, i = 0.005, n = 60, deferral = 24)
+
+# Exam problem: Loan valuation
+# A loan requires 36 monthly payments of 500€ at 6\% annual rate.
+# What is the loan principal?
+monthly_rate <- calc_equivalent_rate(0.06, 12)
+annuity_pv(R = 500, i = monthly_rate, n = 36, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{annuity_fv}} for future value of annuity
+\code{\link{geom_annuity_pv}} for growing payment annuity
+\code{\link{perpetuity_pv}} for infinite payment stream
+\code{\link{calc_equivalent_rate}} to match rate with payment frequency
+\code{\link{show_formula}("annuity")} for theoretical formulas
 }

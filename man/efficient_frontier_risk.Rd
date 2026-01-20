@@ -4,21 +4,53 @@
 \alias{efficient_frontier_risk}
 \title{Efficient Frontier Risk (Hyperbola)}
 \usage{
-efficient_frontier_risk(mu, A, B, C)
+efficient_frontier_risk(
+  mu,
+  A,
+  B,
+  C,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
 \item{mu}{Numeric. The target expected return.}
 
-\item{A}{Numeric. Coefficient of mu^2.}
+\item{A}{Numeric. Coefficient of mu^2 (related to C).}
 
-\item{B}{Numeric. Coefficient of mu.}
+\item{B}{Numeric. Coefficient of mu (related to B).}
 
-\item{C}{Numeric. Constant term.}
+\item{C}{Numeric. Constant term (related to A).}
+
+\item{verbose}{Logical. If TRUE, displays calculation steps.}
 }
 \value{
-Numeric. The portfolio risk (sigma).
+Numeric. The portfolio risk (standard deviation).
 }
 \description{
-Calculates portfolio risk (sigma) given expected return (mu) using the explicit efficient frontier equation often found in exams.
-Equation: sigma = sqrt(A*mu^2 + B*mu + C)
+Calculates portfolio risk (sigma) for a target return (mu) using the 
+Efficient Frontier equation (Markovitz hyperbola).
+}
+\details{
+**Mathematical Formula:**
+\deqn{\sigma(\mu) = \sqrt{A \mu^2 + B \mu + C}}
+
+This equation defines the efficient frontier in \eqn{(\mu, \sigma)} space.
+A, B, and C are constants derived from the inverse covariance matrix.
+
+**Properties:**
+- The Minimum Variance Portfolio (MVP) is the vertex of the hyperbola.
+- The upper half is the Efficient Frontier.
+- The lower half is inefficient.
+
+**Exam Tip:**
+In exams, the coefficients A, B, C are usually given or derived from 3 representative portfolios.
+}
+\examples{
+# Given frontier equation: sigma = sqrt(40*mu^2 - 4*mu + 0.2)
+# Find risk for 10\% return
+efficient_frontier_risk(mu=0.10, A=40, B=-4, C=0.2)
+
+}
+\seealso{
+\code{\link{solve_market_portfolio_return}} using frontier parameters
 }

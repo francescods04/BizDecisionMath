@@ -4,19 +4,61 @@
 \alias{capm_expected_return}
 \title{CAPM Expected Return}
 \usage{
-capm_expected_return(beta, r_m, r_f)
+capm_expected_return(
+  beta,
+  r_m,
+  r_f,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{beta}{Numeric. The beta coefficient.}
+\item{beta}{Numeric. The beta coefficient (systematic risk).}
 
 \item{r_m}{Numeric. The expected market return.}
 
 \item{r_f}{Numeric. The risk-free rate.}
+
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
 Numeric. The expected return.
 }
 \description{
-Calculates the expected return of an asset/portfolio using CAPM.
-Formula: E(R) = R_f + beta * (E(R_m) - R_f)
+Calculates the expected return of an asset/portfolio using the Capital Asset Pricing Model (CAPM).
+}
+\details{
+**Mathematical Formula:**
+\deqn{E(R_i) = R_f + \beta_i (E(R_m) - R_f)}
+or
+\deqn{\mu_i = r + \beta_i (\mu_M - r)}
+
+**Components:**
+- \eqn{R_f}: Risk-free rate (time value of money)
+- \eqn{\beta_i}: Systematic risk of asset i
+- \eqn{R_m - R_f}: Market Risk Premium (price of risk)
+
+**Interpretation:**
+An investor should be compensated for time (risk-free rate) and systematic risk (beta times premium).
+Idiosyncratic risk is not compensated because it can be diversified away.
+
+**Use Cases:**
+- Estimating cost of equity (Ke) for valuation
+- Evaluating portfolio performance (Jensen's Alpha)
+- Setting required hurdle rates for projects
+}
+\examples{
+# Calculate required return for a stock with Beta = 1.2
+# Risk-free rate = 3\%, Market Return = 8\%
+capm_expected_return(beta = 1.2, r_m = 0.08, r_f = 0.03)
+# Returns: 0.03 + 1.2 * (0.08 - 0.03) = 0.09 (9\%)
+
+# Exam problem: Cost of Equity
+# Beta is 1.5, risk-free rate is 4\%, market risk premium is 6\%.
+# Note: If "Market Risk Premium" is given directly, use r_m = r_f + premium
+capm_expected_return(beta = 1.5, r_m = 0.10, r_f = 0.04, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{capm_beta}} for calculating beta
+\code{\link{show_formula}("capm")} for theoretical formula
 }

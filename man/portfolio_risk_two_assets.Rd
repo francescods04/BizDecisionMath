@@ -2,23 +2,56 @@
 % Please edit documentation in R/06_portfolio_selection.R
 \name{portfolio_risk_two_assets}
 \alias{portfolio_risk_two_assets}
-\title{Two Asset Portfolio Risk (Volatility)}
+\title{Two Asset Portfolio Risk (Standard Deviation)}
 \usage{
-portfolio_risk_two_assets(w, sigma1, sigma2, rho)
+portfolio_risk_two_assets(
+  w,
+  sigma1,
+  sigma2,
+  rho,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
 \item{w}{Numeric. Weight of asset 1.}
 
-\item{sigma1}{Numeric. Volatility of asset 1.}
+\item{sigma1}{Numeric. Volatility (std dev) of asset 1.}
 
-\item{sigma2}{Numeric. Volatility of asset 2.}
+\item{sigma2}{Numeric. Volatility (std dev) of asset 2.}
 
 \item{rho}{Numeric. Correlation coefficient (-1 to 1).}
+
+\item{verbose}{Logical. If TRUE, displays calculation steps.}
 }
 \value{
-Numeric. Portfolio volatility.
+Numeric. Portfolio volatility (sigma).
 }
 \description{
-Calculates standard deviation of a portfolio of two assets.
-Formula: sigma_p = sqrt(w^2*sigma1^2 + (1-w)^2*sigma2^2 + 2*w*(1-w)*sigma1*sigma2*rho)
+Calculates the risk (standard deviation) of a two-asset portfolio.
+This demonstrates the effect of diversification.
+}
+\details{
+**Mathematical Formula:**
+\deqn{\sigma_P = \sqrt{w^2 \sigma_1^2 + (1-w)^2 \sigma_2^2 + 2 w (1-w) \sigma_1 \sigma_2 \rho_{1,2}}}
+
+**Diversification Effect:**
+The lower the correlation \eqn{\rho}, the lower the portfolio risk.
+- \eqn{\rho = 1}: No diversification benefits (linear risk)
+- \eqn{\rho < 1}: Risk is LESS than weighted average (Diversification)
+- \eqn{\rho = -1}: Maximum diversification (risk can be eliminated)
+}
+\examples{
+# 50/50 Portfolio, both assets 20\% vol, correlation 0 (uncorrelated)
+portfolio_risk_two_assets(w=0.5, sigma1=0.2, sigma2=0.2, rho=0)
+# Returns: sqrt(0.25*0.04 + 0.25*0.04) = sqrt(0.02) ≈ 14.14\%
+# Note: 14.14\% < 20\% (Diversification benefit!)
+
+# Exam problem: Minimum Variance
+# Asset A: 20\% vol, Asset B: 30\% vol, Rho = -0.5, Weights 60/40
+portfolio_risk_two_assets(w=0.6, sigma1=0.2, sigma2=0.3, rho=-0.5, verbose=TRUE)
+
+}
+\seealso{
+\code{\link{portfolio_return_two_assets}}
+\code{\link{show_proof}("portfolio risk")} for derivation
 }

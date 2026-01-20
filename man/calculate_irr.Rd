@@ -2,7 +2,7 @@
 % Please edit documentation in R/03_investment_analysis.R
 \name{calculate_irr}
 \alias{calculate_irr}
-\title{Calculate Internal Rate of Return (IRR)}
+\title{Internal Rate of Return (IRR)}
 \usage{
 calculate_irr(
   cash_flows,
@@ -14,16 +14,60 @@ calculate_irr(
 \arguments{
 \item{cash_flows}{Numeric vector. The series of cash flows.}
 
-\item{times}{Numeric vector. The times corresponding to cash flows.}
+\item{times}{Numeric vector. Times corresponding to cash flows.}
 
-\item{guess}{Numeric. Initial guess for root finding (default 0.1).}
+\item{guess}{Numeric. Initial guess for numerical solver (default 0.1).}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The IRR. Returns NA if not found.
+Numeric. The IRR as a decimal (e.g., 0.15 for 15%). Returns NA if no solution.
 }
 \description{
-Calculates the IRR for a series of cash flows.
-Finds r such that NPV(r) = 0.
+Calculates the Internal Rate of Return - the discount rate that makes NPV = 0.
+IRR represents the project's expected rate of return.
+}
+\details{
+**Mathematical Definition:**
+IRR is the rate r that solves:
+\deqn{0 = \sum_{t=0}^{n} \frac{CF_t}{(1+r)^t}}
+
+**Decision Rule:**
+- IRR > cost of capital: Accept the project
+- IRR < cost of capital: Reject the project
+- IRR = cost of capital: Indifferent
+
+**Key Properties:**
+- Provides a percentage return measure
+- Independent of the discount rate
+- Multiple IRRs possible with non-conventional cash flows
+
+**Limitations:**
+- Not suitable for mutually exclusive projects of different scales
+- May give multiple or no solutions
+- Can conflict with NPV for ranking projects
+
+**Relationship to NPV:**
+NPV > 0 ⟺ IRR > cost of capital (for conventional cash flows)
+}
+\examples{
+# Basic usage: Investment of 1000, returns of 400, 400, 400
+calculate_irr(c(-1000, 400, 400, 400))
+# Returns: ~0.0966 (9.66\%)
+
+# Exam problem: Project evaluation
+# A project requires 100,000€ investment and returns:
+# Year 1: 30,000€, Year 2: 40,000€, Year 3: 50,000€
+# What is the IRR? Should we accept if cost of capital is 10\%?
+irr <- calculate_irr(c(-100000, 30000, 40000, 50000), verbose = TRUE)
+# Compare: irr > 0.10 means accept
+
+# Verify IRR: NPV at IRR should be ~0
+irr <- calculate_irr(c(-1000, 400, 400, 400))
+calculate_npv(c(-1000, 400, 400, 400), i = irr)  # Should be ~0
+
+}
+\seealso{
+\code{\link{calculate_npv}} for NPV calculation
+\code{\link{show_proof}("npv irr")} for NPV-IRR equivalence proof
 }

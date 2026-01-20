@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{annuity_fv}
 \alias{annuity_fv}
-\title{Final Value of an Annuity}
+\title{Future Value of an Annuity}
 \usage{
 annuity_fv(
   R,
@@ -13,19 +13,56 @@ annuity_fv(
 )
 }
 \arguments{
-\item{R}{Numeric. The periodic payment.}
+\item{R}{Numeric. The periodic payment amount.}
 
 \item{i}{Numeric. The interest rate per period.}
 
-\item{n}{Integer. The number of periods.}
+\item{n}{Integer. The number of payment periods.}
 
-\item{type}{Character. "ordinary" or "due". Default "ordinary".}
+\item{type}{Character. `"ordinary"` (default) or `"due"`.}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The final value.
+Numeric. The future value of the annuity.
 }
 \description{
-Calculates the final value of an annuity at time n.
+Calculates the accumulated (future) value of a series of equal periodic payments
+at the time of the last payment.
+}
+\details{
+**Mathematical Formulas:**
+
+Ordinary Annuity:
+\deqn{FV = R \times \frac{(1+i)^n - 1}{i} = R \times s_{\overline{n}|i}}
+
+Due Annuity:
+\deqn{FV = R \times \frac{(1+i)^n - 1}{i} \times (1+i) = R \times \ddot{s}_{\overline{n}|i}}
+
+**Relationship to Present Value:**
+FV = PV × (1+i)^n
+
+**Use Cases:**
+- Retirement savings planning
+- Sinking fund calculations
+- Education fund accumulation
+}
+\examples{
+# Basic savings plan: 500€/month for 10 years at 0.4\% monthly
+annuity_fv(R = 500, i = 0.004, n = 120)
+
+# Exam problem: Retirement savings
+# An employee saves 1000€/month for 30 years at 5\% annual rate.
+# How much will they have at retirement?
+monthly_rate <- calc_equivalent_rate(0.05, 12)
+annuity_fv(R = 1000, i = monthly_rate, n = 360, verbose = TRUE)
+
+# Compare ordinary vs due annuity
+annuity_fv(R = 100, i = 0.01, n = 12, type = "ordinary")  
+annuity_fv(R = 100, i = 0.01, n = 12, type = "due")  # Higher
+
+}
+\seealso{
+\code{\link{annuity_pv}} for present value
+\code{\link{calc_compound_accumulation}} for single sum
 }

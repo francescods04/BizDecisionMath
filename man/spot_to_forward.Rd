@@ -2,23 +2,75 @@
 % Please edit documentation in R/02_advanced_annuities.R
 \name{spot_to_forward}
 \alias{spot_to_forward}
-\title{Calculate Forward Rates from Spot Rates}
+\title{Calculate Forward Rate from Spot Rates}
 \usage{
-spot_to_forward(spot_rate_s, spot_rate_k, t_s, t_k)
+spot_to_forward(
+  spot_rate_s,
+  spot_rate_k,
+  t_s,
+  t_k,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{spot_rate_s}{Numeric. Spot rate for time s.}
+\item{spot_rate_s}{Numeric. Spot rate r(0,s) to time s.}
 
-\item{spot_rate_k}{Numeric. Spot rate for time k.}
+\item{spot_rate_k}{Numeric. Spot rate r(0,k) to time k.}
 
-\item{t_s}{Numeric. Time s (in years).}
+\item{t_s}{Numeric. Start time s (in years).}
 
-\item{t_k}{Numeric. Time k (in years). Must be greater than t_s.}
+\item{t_k}{Numeric. End time k (in years). Must be > t_s.}
+
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The forward interest rate r(s, k).
+Numeric. The forward interest rate r(s,k).
 }
 \description{
-Calculates the implied forward rate r(s, k) between time s and k given spot rates r(0, s) and r(0, k).
-Formula: (1 + r(0,s))^s * (1 + r(s,k))^(k-s) = (1 + r(0,k))^k
+Calculates the implied forward interest rate between two future dates
+using the term structure of spot rates. Based on the no-arbitrage principle.
+}
+\details{
+**Mathematical Formula:**
+The no-arbitrage condition implies:
+\deqn{(1 + r_{0,s})^s \times (1 + r_{s,k})^{k-s} = (1 + r_{0,k})^k}
+
+Solving for the forward rate r(s,k):
+\deqn{r_{s,k} = \left[\frac{(1 + r_{0,k})^k}{(1 + r_{0,s})^s}\right]^{\frac{1}{k-s}} - 1}
+
+**Interpretation:**
+- r(0,s) = Spot rate from today to time s
+- r(0,k) = Spot rate from today to time k
+- r(s,k) = Forward rate agreed today for borrowing/lending from s to k
+
+**No-Arbitrage Principle:**
+The forward rate is the rate that makes investing for k years directly
+equivalent to investing for s years then reinvesting at the forward rate.
+
+**Use Cases:**
+- Pricing forward rate agreements (FRAs)
+- Extracting market expectations of future rates
+- Bond trading strategies
+}
+\examples{
+# Basic usage: Given 1-year spot = 3\% and 2-year spot = 4\%,
+# find the 1-year forward rate starting in 1 year
+spot_to_forward(spot_rate_s = 0.03, spot_rate_k = 0.04, t_s = 1, t_k = 2)
+# Returns: ~5.01\%
+
+# Exam problem: Term structure analysis
+# The current term structure shows:
+# - 1-year spot rate: 2.5\%
+# - 3-year spot rate: 3.5\%
+# What is the implied forward rate from year 1 to year 3?
+spot_to_forward(0.025, 0.035, 1, 3, verbose = TRUE)
+
+# Verify no-arbitrage: Both paths should give same accumulation
+# Direct: (1 + 0.04)^2 = 1.0816
+# Indirect: (1 + 0.03)^1 * (1 + 0.0501)^1 ≈ 1.0816
+
+}
+\seealso{
+\code{\link{show_proof}("spot forward")} for the no-arbitrage proof
+\code{\link{show_formula}("forward rate")} for theoretical formula
 }

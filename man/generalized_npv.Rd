@@ -9,15 +9,55 @@ generalized_npv(cash_flows, times, spot_rates)
 \arguments{
 \item{cash_flows}{Numeric vector. The cash flows (including initial at t=0).}
 
-\item{times}{Numeric vector. The times corresponding to cash flows.}
+\item{times}{Numeric vector. The times corresponding to cash flows (e.g., 0, 1, 2...).}
 
 \item{spot_rates}{Numeric vector. The spot rates r(0, t) matching each time point. 
-For t=0, the rate is irrelevant (usually 0).}
+The rate corresponding to t=0 is typically irrelevant (usually 0).}
 }
 \value{
 Numeric. The Generalized NPV.
 }
 \description{
-Calculates NPV using a term structure of interest rates (spot rates) instead of a constant rate.
-Formula: GNPV = Sum(CashFlow_t / (1 + r_t)^t)
+Calculates the Net Present Value (NPV) using a term structure of interest rates
+(dependent on time) instead of a constant discount rate.
+This is more accurate when the yield curve is not flat.
+}
+\details{
+**Mathematical Formula:**
+\deqn{GNPV = \sum_{t=0}^{n} \frac{CF_t}{(1 + r_{0,t})^t}}
+
+**Components:**
+- \eqn{CF_t}: Cash flow at time t
+- \eqn{r_{0,t}}: Spot rate for maturity t (the rate for a zero-coupon bond maturing at t)
+- \eqn{(1 + r_{0,t})^{-t}}: The discount factor for time t (also denoted v(t) or B(0,t))
+
+**Assumptions:**
+1. Markets are efficient (no arbitrage)
+2. Spot rates are known for all relevant maturities
+
+**Use Cases:**
+- Valuing long-term projects where interest rate risk is significant
+- Bond pricing using the zero-coupon yield curve
+- Liability driven investment (LDI) analysis
+}
+\examples{
+# Basic usage: Cash flows at t=0, 1, 2 with spot rates 0\%, 3\%, 4\%
+generalized_npv(cash_flows = c(-1000, 500, 600), 
+                times = c(0, 1, 2), 
+                spot_rates = c(0, 0.03, 0.04))
+# Returns: ~33.88
+
+# Exam problem: Pricing a bond using spot rates
+# A 2-year bond pays 5\% annual coupon and face value 100 at maturity.
+# Spot rates: 1-year = 2\%, 2-year = 3.5\%. Calculate price.
+# Cash flows: t=1: 5, t=2: 105
+generalized_npv(cash_flows = c(5, 105), 
+                times = c(1, 2), 
+                spot_rates = c(0.02, 0.035))
+
+}
+\seealso{
+\code{\link{calculate_npv}} for constant rate NPV
+\code{\link{spot_to_forward}} for deriving forward rates from spot rates
+\code{\link{show_formula}("gnpv")} for theoretical formula
 }

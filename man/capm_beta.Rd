@@ -2,9 +2,9 @@
 % Please edit documentation in R/06_portfolio_selection.R
 \name{capm_beta}
 \alias{capm_beta}
-\title{CAPM Beta}
+\title{CAPM Beta Coefficient}
 \usage{
-capm_beta(mu, r_m, r_f)
+capm_beta(mu, r_m, r_f, verbose = getOption("BizDecisionMath.verbose", FALSE))
 }
 \arguments{
 \item{mu}{Numeric. The expected return of the asset/portfolio.}
@@ -12,11 +12,41 @@ capm_beta(mu, r_m, r_f)
 \item{r_m}{Numeric. The expected market return.}
 
 \item{r_f}{Numeric. The risk-free rate.}
+
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
 Numeric. The beta coefficient.
 }
 \description{
-Calculates Beta given expected return and market parameters.
-Formula: beta = (E(R) - R_f) / (E(R_m) - R_f)
+Calculates the Beta of an asset, which measures its sensitivity to market movements.
+Rearranges the CAPM formula to solve for Beta.
+}
+\details{
+**Mathematical Formula:**
+\deqn{\beta_i = \frac{E(R_i) - R_f}{E(R_m) - R_f}}
+
+**Alternative Definition (Covariance):**
+\deqn{\beta_i = \frac{Cov(R_i, R_m)}{Var(R_m)} = \rho_{i,m} \frac{\sigma_i}{\sigma_m}}
+
+**Interpretation:**
+- \eqn{\beta = 1}: Asset moves in sync with market
+- \eqn{\beta > 1}: Aggressive/Volatile (amplifies market moves)
+- \eqn{\beta < 1}: Defensive (less volatile than market)
+- \eqn{\beta = 0}: Uncorrelated with market (e.g., risk-free asset)
+}
+\examples{
+# Find Beta: Stock return 12\%, Market 10\%, Risk-free 2\%
+capm_beta(mu = 0.12, r_m = 0.10, r_f = 0.02)
+# Returns: (0.12-0.02)/(0.10-0.02) = 0.10/0.08 = 1.25
+
+# Exam problem: Portfolio Beta
+# A portfolio returns 15\% when the market returns 11\%. Risk-free is 3\%.
+# What is the portfolio's systematic risk (beta)?
+capm_beta(mu = 0.15, r_m = 0.11, r_f = 0.03, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{capm_expected_return}} for using beta
+\code{\link{show_formula}("beta")} for theory
 }

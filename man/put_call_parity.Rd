@@ -26,7 +26,7 @@ put_call_parity(
 )
 }
 \arguments{
-\item{S}{Numeric. Current stock price.}
+\item{S}{Numeric. Stock price.}
 
 \item{K}{Numeric. Strike price.}
 
@@ -34,25 +34,88 @@ put_call_parity(
 
 \item{T}{Numeric. Time to maturity.}
 
-\item{call_price}{Numeric. Call option price (if known).}
+\item{call_price}{Numeric. Call price (optional).}
 
-\item{put_price}{Numeric. Put option price (if known).}
+\item{put_price}{Numeric. Put price (optional).}
 
-\item{verbose}{Logical. If TRUE, displays formula and calculation. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays detailed analysis.}
 
 \item{c}{Numeric. Call price (set as NA to calculate).}
 
 \item{p}{Numeric. Put price (set as NA to calculate).}
 }
 \value{
-Numeric. The missing value.
+Numeric. The missing value calculated from parity.
 
-Numeric or List. If both call and put prices are provided, returns the arbitrage check. Otherwise returns the missing price.
+- If one price missing: Reimputed price (Numeric)
+- If both prices present: List with arbitrage check logic
 }
 \description{
-Uses Put-Call Parity to find the missing value among Call, Put, Stock Price, or Strike Price.
-Formula: c - p = S - K * (1 + r)^-T
+Uses the fundamental no-arbitrage relationship to find the missing price of European options.
+Put-Call Parity relates the prices of puts and calls with the same strike and maturity.
 
-Verifies or calculates prices using put-call parity.
-C - P = S - K × e^(-r×T)
+Verifies if Put-Call Parity holds (Arbitrage Check) or calculates a missing 
+value (European Option Pricing) if one inputs is NULL.
+}
+\details{
+**Mathematical Formula:**
+\deqn{c + K \cdot e^{-rT} = p + S}
+Or rearranged:
+\deqn{c - p = S - K \cdot e^{-rT}}
+
+**Components:**
+- c: European Call price
+- p: European Put price
+- S: Current Stock price
+- K: Strike price
+- \eqn{e^{-rT}}: Continuous discount factor (PV of 1)
+
+**Strategy Interpretation:**
+- Left side (c + K*e^-rT): Buy Call + Invest PV(K) in risk-free bond (Fiduciary Call)
+- Right side (p + S): Buy Put + Buy Stock (Protective Put)
+Both strategies guarantee having value max(S_T, K) at maturity T.
+
+**Assumptions:**
+- No dividends (basic formula)
+- European options only
+- No transaction costs
+- No arbitrage opportunities exist
+
+**Parity Relationship:**
+\deqn{C - P = S - K e^{-rT}}
+
+**Arbitrage Conditions:**
+- If \eqn{C - P > S - Ke^{-rT}}: Call is overvalued. Sell C, Buy P+S, Borrow Ke^{-rT}
+- If \eqn{C - P < S - Ke^{-rT}}: Put is overvalued. Sell P, Buy C, Short S, Lend Ke^{-rT}
+
+**Use Cases:**
+- Pricing synthetic options
+- Identifying arbitrage opportunities
+- Validating option market data
+}
+\examples{
+# Find Call Price: S=100, K=100, r=5\%, T=1, Put=5
+# c = p + S - K*e^-rT
+put_call_parity(p=5, S=100, K=100, r=0.05, T=1)
+# Returns: ~9.88
+
+# Arbitrage check: If market Call is 11, is there arbitrage?
+# Theoretical 9.88 < Market 11 => Sell Call, Buy synthetic (Put+Stock-Bond)
+
+# Find Implied Stock Price given options
+put_call_parity(c=10, p=5, K=100, r=0.05, T=1)
+
+# Calculate Put Price
+put_call_parity(S=100, K=100, r=0.05, T=1, call_price=10)
+
+# Check for Arbitrage
+put_call_parity(S=100, K=100, r=0.05, T=1, call_price=10, put_price=3, verbose=TRUE)
+
+}
+\seealso{
+\code{\link{binomial_option_price}} for pricing options
+\code{\link{show_proof}("put call parity")} for the no-arbitrage proof
+
+\code{\link{binomial_option_price}}
+\code{\link{put_call_parity_solver}} simplified version
 }

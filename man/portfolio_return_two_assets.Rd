@@ -4,19 +4,47 @@
 \alias{portfolio_return_two_assets}
 \title{Two Asset Portfolio Return}
 \usage{
-portfolio_return_two_assets(w, mu1, mu2)
+portfolio_return_two_assets(
+  w,
+  mu1,
+  mu2,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{w}{Numeric. Weight of asset 1.}
+\item{w}{Numeric. Weight of asset 1 (0 to 1).}
 
 \item{mu1}{Numeric. Expected return of asset 1.}
 
 \item{mu2}{Numeric. Expected return of asset 2.}
+
+\item{verbose}{Logical. If TRUE, displays calculation steps.}
 }
 \value{
 Numeric. Portfolio expected return.
 }
 \description{
-Calculates expected return of a portfolio of two assets.
-Formula: mu_p = w * mu1 + (1-w) * mu2
+Calculates the expected return of a portfolio consisting of two assets.
+Returns are simply the weighted average of individual asset returns.
+}
+\details{
+**Mathematical Formula:**
+\deqn{\mu_P = w \mu_1 + (1-w) \mu_2}
+
+**Components:**
+- w: Weight invested in Asset 1
+- 1-w: Weight invested in Asset 2
+
+**Key Property:**
+Linearity: The return of a portfolio is always the weighted average,
+regardless of the correlation between assets.
+}
+\examples{
+# 60\% in Stock A (10\% return), 40\% in Stock B (6\% return)
+portfolio_return_two_assets(w = 0.60, mu1 = 0.10, mu2 = 0.06)
+# Returns: 0.6*0.1 + 0.4*0.06 = 0.084 (8.4\%)
+
+}
+\seealso{
+\code{\link{portfolio_risk_two_assets}} for calculating risk
 }

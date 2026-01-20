@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{calc_compound_accumulation}
 \alias{calc_compound_accumulation}
-\title{Calculate Compound Interest (Accumulation)}
+\title{Compound Interest Accumulation}
 \usage{
 calc_compound_accumulation(
   C,
@@ -12,18 +12,51 @@ calc_compound_accumulation(
 )
 }
 \arguments{
-\item{C}{Numeric. The principal.}
+\item{C}{Numeric. The principal amount (initial capital).}
 
-\item{i}{Numeric. The annual interest rate.}
+\item{i}{Numeric. The annual interest rate (as decimal).}
 
 \item{t}{Numeric. The time in years.}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays exam-style calculation steps.}
 }
 \value{
-Numeric. The final value M.
+Numeric. The final accumulated value M.
 }
 \description{
-Calculates the final value M in compound interest.
-Formula: M = C * (1 + i)^t
+Calculates the final value (M) of a principal invested at compound interest.
+Compound interest means interest is earned on both principal AND accumulated interest.
+}
+\details{
+**Mathematical Formula:**
+\deqn{M = C \times (1 + i)^t}
+
+**Key Properties of Compound Interest:**
+- Interest grows exponentially with time
+- Decomposable: can split time periods
+- Standard for medium/long-term investments
+- (1 + i)^t is the accumulation factor
+
+**Relationship to Present Value:**
+M = C × (1+i)^t ⟺ C = M × (1+i)^(-t)
+}
+\examples{
+# Basic usage: 1000€ at 5\% for 10 years
+calc_compound_accumulation(C = 1000, i = 0.05, t = 10)
+# Returns: 1628.89
+
+# Compare with simple interest
+calc_compound_accumulation(C = 1000, i = 0.05, t = 10)  # 1628.89
+calc_simple_accumulation(C = 1000, i = 0.05, t = 10)    # 1500.00
+
+# Exam problem: Long-term investment
+# An investor deposits 50,000€ at 4\% compound interest for 5 years.
+# What is the final value?
+calc_compound_accumulation(C = 50000, i = 0.04, t = 5, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{calc_compound_discount}} for present value
+\code{\link{calc_simple_accumulation}} for simple interest comparison
+\code{\link{calc_equivalent_rate}} for rate conversions
 }

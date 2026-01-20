@@ -2,7 +2,7 @@
 % Please edit documentation in R/01_basics_annuities.R
 \name{calc_equivalent_rate}
 \alias{calc_equivalent_rate}
-\title{Calculate Equivalent Interest Rate}
+\title{Convert Between Annual and Periodic Interest Rates}
 \usage{
 calc_equivalent_rate(
   rate,
@@ -12,19 +12,57 @@ calc_equivalent_rate(
 )
 }
 \arguments{
-\item{rate}{Numeric. The known rate.}
+\item{rate}{Numeric. The known interest rate (annual or periodic).}
 
-\item{m}{Integer. Frequency of capitalization per year (e.g., 12 for monthly, 2 for semi-annual).}
+\item{m}{Integer. Frequency of compounding per year.}
 
-\item{type}{Character. "annual_to_periodic" (default) or "periodic_to_annual".}
+\item{type}{Character. Either `"annual_to_periodic"` (default) or `"periodic_to_annual"`.}
 
-\item{verbose}{Logical. If TRUE, displays formula, inputs, and result. Default FALSE.}
+\item{verbose}{Logical. If TRUE, displays the formula and calculation steps.}
 }
 \value{
-Numeric. The equivalent rate.
+Numeric. The equivalent interest rate.
 }
 \description{
-Converts between annual interest rate i and periodic interest rate i_m.
-Formula i -> i_m: i_m = (1 + i)^(1/m) - 1
-Formula i_m -> i: i = (1 + i_m)^m - 1
+Converts between an effective annual interest rate (i) and a periodic rate (i_m)
+that compounds m times per year. Essential for matching payment frequency with rate frequency.
+}
+\details{
+**Mathematical Formulas:**
+
+Annual to Periodic (given annual rate i, find periodic rate i_m):
+\deqn{i_m = (1 + i)^{1/m} - 1}
+
+Periodic to Annual (given periodic rate i_m, find annual rate i):
+\deqn{i = (1 + i_m)^m - 1}
+
+**Common Frequencies (m):**
+- m = 12: Monthly
+- m = 4: Quarterly
+- m = 2: Semi-annual
+- m = 365: Daily
+
+**When to Use:**
+Use `annual_to_periodic` when you have an annual rate but payments are monthly/quarterly.
+Use `periodic_to_annual` when you have a monthly rate and need the effective annual rate.
+}
+\examples{
+# Convert 6\% annual rate to monthly rate
+calc_equivalent_rate(rate = 0.06, m = 12, type = "annual_to_periodic")
+# Returns: 0.004868 (0.4868\% per month)
+
+# Convert 0.5\% monthly rate to annual rate
+calc_equivalent_rate(rate = 0.005, m = 12, type = "periodic_to_annual")
+# Returns: 0.0617 (6.17\% effective annual rate)
+
+# Exam problem: Mortgage rate conversion
+# A mortgage advertises 6\% annual rate with monthly payments.
+# What is the monthly rate to use in annuity calculations?
+calc_equivalent_rate(rate = 0.06, m = 12, verbose = TRUE)
+
+}
+\seealso{
+\code{\link{annuity_pv}} which requires matching rate and payment frequencies
+\code{\link{show_formula}("equivalent rate")} for theoretical background
+\code{\link{show_proof}("annual compounded")} for the proof
 }

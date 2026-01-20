@@ -4,24 +4,81 @@
 \alias{perpetuity_pv}
 \title{Present Value of Perpetuity}
 \usage{
-perpetuity_pv(R, i, g = 0, type = "ordinary", deferral = 0)
+perpetuity_pv(
+  R,
+  i,
+  g = 0,
+  type = "ordinary",
+  deferral = 0,
+  verbose = getOption("BizDecisionMath.verbose", FALSE)
+)
 }
 \arguments{
-\item{R}{Numeric. The payment amount (first payment for geometric).}
+\item{R}{Numeric. The payment amount (first payment for growing perpetuity).}
 
-\item{i}{Numeric. The interest rate.}
+\item{i}{Numeric. The interest/discount rate (must be > g).}
 
-\item{g}{Numeric. The growth rate (default 0 for constant perpetuity). Must be less than i.}
+\item{g}{Numeric. The growth rate (default 0 for constant perpetuity).}
 
-\item{type}{Character. "ordinary" or "due". Default "ordinary".}
+\item{type}{Character. `"ordinary"` (default) or `"due"`.}
 
 \item{deferral}{Integer. Number of periods to defer start (default 0).}
+
+\item{verbose}{Logical. If TRUE, displays exam-style solution.}
 }
 \value{
-Numeric. The present value.
+Numeric. The present value of the perpetuity.
 }
 \description{
-Calculates PV of a perpetuity, optionally with constant growth (geometric).
-Formula (Ordinary): PV = R / (i - g)
-Formula (Due): PV = (R / (i - g)) * (1 + i)
+Calculates the present value of an infinite stream of payments.
+Supports both constant perpetuities and growing perpetuities (Gordon Growth Model).
+}
+\details{
+**Mathematical Formulas:**
+
+Constant Perpetuity (g = 0):
+\deqn{PV = \frac{R}{i}}
+
+Growing Perpetuity / Gordon Growth Model (g > 0):
+\deqn{PV = \frac{R}{i - g}}
+
+**Convergence Condition:**
+For the series to converge, we MUST have g < i.
+If g ≥ i, the perpetuity has infinite present value.
+
+**Gordon Growth Model Context:**
+When used for stock valuation:
+- R = Next year's dividend (D₁)
+- i = Required rate of return
+- g = Dividend growth rate
+- PV = Stock price (P₀)
+
+**Use Cases:**
+- Stock valuation (Gordon Growth)
+- Preferred stock pricing
+- Endowment fund sizing
+- Consol bond pricing
+}
+\examples{
+# Constant perpetuity: 1000€/year forever at 5\%
+perpetuity_pv(R = 1000, i = 0.05)
+# Returns: 20,000
+
+# Growing perpetuity: 1000€/year growing 2\% at 5\%
+perpetuity_pv(R = 1000, i = 0.05, g = 0.02)
+# Returns: 33,333
+
+# Exam problem: Stock valuation using Gordon Growth
+# A stock pays a dividend of 2€ next year, growing 3\% annually.
+# If required return is 8\%, what should the stock price be?
+perpetuity_pv(R = 2, i = 0.08, g = 0.03, verbose = TRUE)
+
+# Deferred perpetuity: Endowment paying 50,000€/year starting in 10 years
+perpetuity_pv(R = 50000, i = 0.04, deferral = 10)
+
+}
+\seealso{
+\code{\link{geom_annuity_pv}} for finite growing annuity
+\code{\link{gordon_model}} for stock valuation
+\code{\link{show_formula}("perpetuity")} for theoretical formula
 }
