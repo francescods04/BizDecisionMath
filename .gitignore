@@ -1,0 +1,11 @@
+# R session history
+.Rhistory
+.RData
+.Rproj.user/
+
+# R package build artifacts
+*.Rcheck/
+*.tar.gz
+
+# macOS
+.DS_Store
